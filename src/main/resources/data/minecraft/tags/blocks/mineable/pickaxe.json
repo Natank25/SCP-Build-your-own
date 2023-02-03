@@ -1,0 +1,16 @@
+{
+  "replace": false,
+  "values": [
+    "scpfondation:white_wall",
+    "scpfondation:concrete_wall",
+    "scpfondation:elevator_wall",
+    "scpfondation:office_wall",
+
+    "scpfondation:keycard_reader",
+    "scpfondation:sliding_door",
+
+    "scpfondation:tile_floor",
+    "scpfondation:elevator_floor",
+    "scpfondation:concrete_floor"
+  ]
+}

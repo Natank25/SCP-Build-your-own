@@ -1,0 +1,21 @@
+{
+  "item.scpfondation.keycard_1": "Keycard L.1",
+  "item.scpfondation.keycard_2": "Keycard L.2",
+  "item.scpfondation.keycard_3": "Keycard L.3",
+  "item.scpfondation.keycard_4": "Keycard L.4",
+  "item.scpfondation.keycard_5": "Keycard L.5",
+  "item.scpfondation.keycard_6": "Keycard Omni",
+  "item.scpfondation.wrench": "Level Wrench",
+
+  "block.scpfondation.sliding_door": "Sliding Door",
+  "block.scpfondation.concrete_floor": "Concrete Floor",
+  "block.scpfondation.tile_floor": "Tile Floor",
+  "block.scpfondation.white_wall": "White Wall",
+  "block.scpfondation.concrete_wall": "Concrete Wall",
+  "block.scpfondation.keycard_reader": "Keycard Reader",
+  "block.scpfondation.elevator_floor": "Elevator Floor",
+  "block.scpfondation.elevator_wall": "Elevator Wall",
+  "block.scpfondation.office_wall": "Office Wall ",
+
+  "sounds.scpfondation.sliding_door_open": "Sliding door opening"
+}

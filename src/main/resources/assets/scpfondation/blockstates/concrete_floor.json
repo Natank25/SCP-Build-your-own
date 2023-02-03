@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "scpfondation:block/concrete_floor"
+    }
+  }
+}
