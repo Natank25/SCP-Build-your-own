@@ -140,9 +140,9 @@ public class KeycardReaderBlock extends ButtonBlock {
             }
         } else if (player.isHolding(ModItems.WRENCH)) {
             if (state.get(KEYCARD_LEVEL) != 6) {
-                player.sendMessage(Text.literal("Changed world to " + (state.get(KEYCARD_LEVEL) + 1) + "."), true);
+                player.sendMessage(Text.literal("Changed keycard level required to " + (state.get(KEYCARD_LEVEL) + 1) + "."), true);
             } else {
-                player.sendMessage(Text.literal("Changed world to 1."), true);
+                player.sendMessage(Text.literal("Changed keycard level required to 1."), true);
             }
             world.setBlockState(pos, state.cycle(KEYCARD_LEVEL), 3);
 
