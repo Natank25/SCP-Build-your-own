@@ -1,0 +1,10 @@
+{
+  "sliding_door_open": {
+    "subtitle": "sounds.scpfondation.sliding_door_open",
+    "sounds": [
+      "scpfondation:blocks/sliding_door/sliding_door_open_1",
+      "scpfondation:blocks/sliding_door/sliding_door_open_2",
+      "scpfondation:blocks/sliding_door/sliding_door_open_3"
+    ]
+  }
+}

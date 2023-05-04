@@ -1,0 +1,6 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "scpfondation:block/concrete_floor"
+  }
+}

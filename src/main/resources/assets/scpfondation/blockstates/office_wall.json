@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "place=upper": {
+      "model": "scpfondation:block/office_wall_upper"
+    },
+    "place=lower": {
+      "model" : "scpfondation:block/office_wall_lower"
+    },
+    "place=between": {
+      "model": "scpfondation:block/office_wall_empty"
+    }
+  }
+}

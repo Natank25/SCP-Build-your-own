@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "scpfondation:block/tile_floor"
+    }
+  }
+}
