@@ -1,18 +1,14 @@
 {
   "schemaVersion": 1,
-  "id": "scpfondation",
+  "id": "scp_byo",
   "version": "${version}",
 
-  "name": "SCP Fondation",
+  "name": "SCP: Build Your Own",
   "description": "A nice mod that allows you to build the SCP Fondation in minecraft, with all the functionalities that are expected",
   "authors": [
     "Natank25",
     "Patato_91"
   ],
-  "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
-  },
 
   "license": "MIT",
   "icon": "mod_icon.png",
@@ -20,15 +16,12 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "io.github.natank25.scpfondation.ScpFondation"
+      "io.github.natank25.scp_byo.scp_byo"
     ],
     "client": [
-      "io.github.natank25.scpfondation.ScpFondationClient"
+      "io.github.natank25.scp_byo.Scp_ByoClient"
     ]
   },
-  "mixins": [
-    "scpfondation.mixins.json"
-  ],
 
   "depends": {
     "fabricloader": ">=0.14.11",

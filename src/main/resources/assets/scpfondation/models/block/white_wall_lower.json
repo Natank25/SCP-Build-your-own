@@ -1,8 +1,0 @@
-{
-  "parent": "minecraft:block/cube_bottom_top",
-  "textures": {
-    "side": "scpfondation:block/white_wall_bottom",
-    "top": "scpfondation:block/white_wall_bottom_top",
-    "bottom": "scpfondation:block/white_wall_bottom_bottom"
-  }
-}
