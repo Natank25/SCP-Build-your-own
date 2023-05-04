@@ -1,16 +1,16 @@
 {
   "replace": false,
   "values": [
-    "scpfondation:white_wall",
-    "scpfondation:concrete_wall",
-    "scpfondation:elevator_wall",
-    "scpfondation:office_wall",
+    "scp_byo:white_wall",
+    "scp_byo:concrete_wall",
+    "scp_byo:elevator_wall",
+    "scp_byo:office_wall",
 
-    "scpfondation:keycard_reader",
-    "scpfondation:sliding_door",
+    "scp_byo:keycard_reader",
+    "scp_byo:sliding_door",
 
-    "scpfondation:tile_floor",
-    "scpfondation:elevator_floor",
-    "scpfondation:concrete_floor"
+    "scp_byo:tile_floor",
+    "scp_byo:elevator_floor",
+    "scp_byo:concrete_floor"
   ]
 }

@@ -1,0 +1,21 @@
+{
+  "item.scp_byo.keycard_1": "Keycard L.1",
+  "item.scp_byo.keycard_2": "Keycard L.2",
+  "item.scp_byo.keycard_3": "Keycard L.3",
+  "item.scp_byo.keycard_4": "Keycard L.4",
+  "item.scp_byo.keycard_5": "Keycard L.5",
+  "item.scp_byo.keycard_6": "Keycard Omni",
+  "item.scp_byo.wrench": "Level Wrench",
+
+  "block.scp_byo.sliding_door": "Sliding Door",
+  "block.scp_byo.concrete_floor": "Concrete Floor",
+  "block.scp_byo.tile_floor": "Tile Floor",
+  "block.scp_byo.white_wall": "White Wall",
+  "block.scp_byo.concrete_wall": "Concrete Wall",
+  "block.scp_byo.keycard_reader": "Keycard Reader",
+  "block.scp_byo.elevator_floor": "Elevator Floor",
+  "block.scp_byo.elevator_wall": "Elevator Wall",
+  "block.scp_byo.office_wall": "Office Wall ",
+
+  "sounds.scp_byo.sliding_door_open": "Sliding door opening"
+}
