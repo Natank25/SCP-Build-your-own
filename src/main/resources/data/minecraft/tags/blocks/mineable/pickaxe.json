@@ -5,12 +5,12 @@
     "scp_byo:concrete_wall",
     "scp_byo:elevator_wall",
     "scp_byo:office_wall",
-
     "scp_byo:keycard_reader",
     "scp_byo:sliding_door",
-
     "scp_byo:tile_floor",
     "scp_byo:elevator_floor",
-    "scp_byo:concrete_floor"
+    "scp_byo:concrete_floor",
+    "scp_byo:dirty_metal",
+    "scp_byo:fondation_glass"
   ]
 }

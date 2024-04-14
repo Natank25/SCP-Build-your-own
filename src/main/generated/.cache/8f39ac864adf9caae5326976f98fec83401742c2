@@ -1,0 +1,12 @@
+// 1.19.3	2024-04-14T19:27:47.6994756	SCP: Build Your Own/Block Loot Tables
+e4d42188ec4493b71a3f9522d776f143701d67ba data\scp_byo\loot_tables\blocks\keycard_reader.json
+8b54d907ecf46df9296c73fe0bf11b6026ac750a data\scp_byo\loot_tables\blocks\elevator_floor.json
+88e1cbbdbad43a2e9ab7d38ab15d445715cc27f4 data\scp_byo\loot_tables\blocks\office_wall.json
+2bf3b93f602d3b2fb7549696cdec80ab2af4afe0 data\scp_byo\loot_tables\blocks\sliding_door.json
+82e6199911090b77359f64bcde72afcb7ed992b3 data\scp_byo\loot_tables\blocks\fondation_glass.json
+3934edaff20fb375d4de6352fb05f643d630be95 data\scp_byo\loot_tables\blocks\white_wall.json
+720fedc7a3eccf9c2954ea8c348b442596a5ffae data\scp_byo\loot_tables\blocks\concrete_floor.json
+c9f9173b745d9c2607d776b75c748aa1917c5b91 data\scp_byo\loot_tables\blocks\concrete_wall.json
+e655b60ada7a466e767e91b870a603106c1d7c14 data\scp_byo\loot_tables\blocks\dirty_metal.json
+1f4bb88648e01bb31b381b3ba6dc80f8c2043a00 data\scp_byo\loot_tables\blocks\elevator_wall.json
+224b47946510603110f6891749d5522d9aca99f0 data\scp_byo\loot_tables\blocks\tile_floor.json

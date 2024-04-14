@@ -4,7 +4,7 @@
       "model": "scp_byo:block/white_wall_upper"
     },
     "place=lower": {
-      "model" : "scp_byo:block/white_wall_lower"
+      "model": "scp_byo:block/white_wall_lower"
     },
     "place=between": {
       "model": "scp_byo:block/white_wall_empty"

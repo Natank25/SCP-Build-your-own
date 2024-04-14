@@ -4,10 +4,10 @@
       "model": "scp_byo:block/concrete_wall_upper"
     },
     "place=lower": {
-      "model" : "scp_byo:block/concrete_wall_lower"
+      "model": "scp_byo:block/concrete_wall_lower"
     },
     "place=between": {
-      "model" : "scp_byo:block/concrete_wall_empty"
+      "model": "scp_byo:block/concrete_wall_empty"
     }
   }
 }

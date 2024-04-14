@@ -2,9 +2,57 @@
   "sliding_door_open": {
     "subtitle": "sounds.scp_byo.sliding_door_open",
     "sounds": [
-      "scp_byo:blocks/sliding_door/sliding_door_open_1",
-      "scp_byo:blocks/sliding_door/sliding_door_open_2",
-      "scp_byo:blocks/sliding_door/sliding_door_open_3"
+      "scp_byo:sliding_door_open_1",
+      "scp_byo:sliding_door_open_2",
+      "scp_byo:sliding_door_open_3"
+    ]
+  },
+  "scp_096_trigger": {
+    "subtitle": "sounds.scp_byo.scp_096_trigger",
+    "sounds": [
+      "scp_byo:scp096_triggered"
+    ]
+  },
+  "scp_096_scream": {
+    "subtitle": "sounds.scp_byo.scp_096_scream",
+    "sounds": [
+      "scp_byo:scp096_scream"
+    ]
+  },
+  "scp_096_chase": {
+    "subtitle": "sounds.scp_byo.scp_096_chase",
+    "sounds": [
+      "scp_byo:scp096_chase"
+    ]
+  },
+  "scp_096_elevator_slam": {
+    "subtitle": "sounds.scp_byo.scp_096_elevator_slam",
+    "sounds": [
+      "scp_byo:scp096_elevator_slam"
+    ]
+  },
+  "scp_096_idle": {
+    "subtitle": "sounds.scp_byo.scp_096_idle",
+    "sounds": [
+      "scp_byo:scp096_idle"
+    ]
+  },
+  "scp_096_kill": {
+    "subtitle": "sounds.scp_byo.scp_096_kill",
+    "sounds": [
+      "scp_byo:scp096_kill"
+    ]
+  },
+  "scp_096_rage": {
+    "subtitle": "sounds.scp_byo.scp_096_rage",
+    "sounds": [
+      "scp_byo:scp096_rage"
+    ]
+  },
+  "scp_096_rage_chase": {
+    "subtitle": "sounds.scp_byo.scp_096_rage",
+    "sounds": [
+      "scp_byo:scp096_rage_chase"
     ]
   }
 }

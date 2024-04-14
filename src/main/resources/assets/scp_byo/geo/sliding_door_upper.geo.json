@@ -1,0 +1,105 @@
+{
+  "format_version": "1.12.0",
+  "minecraft:geometry": [
+    {
+      "description": {
+        "identifier": "geometry.sliding_door_upper",
+        "texture_width": 192,
+        "texture_height": 192,
+        "visible_bounds_width": 3,
+        "visible_bounds_height": 2.5,
+        "visible_bounds_offset": [
+          0,
+          0.75,
+          0
+        ]
+      },
+      "bones": [
+        {
+          "name": "VoxelShapes",
+          "pivot": [
+            0,
+            0,
+            0
+          ],
+          "cubes": [
+            {
+              "origin": [
+                -8,
+                0,
+                -2
+              ],
+              "size": [
+                16,
+                16,
+                4
+              ],
+              "uv": {
+                "north": {
+                  "uv": [
+                    19,
+                    18.99996
+                  ],
+                  "uv_size": [
+                    75.99996,
+                    85.00008
+                  ]
+                },
+                "east": {
+                  "uv": [
+                    0,
+                    18.99996
+                  ],
+                  "uv_size": [
+                    18.99996,
+                    84.99996
+                  ]
+                },
+                "south": {
+                  "uv": [
+                    19,
+                    18.99996
+                  ],
+                  "uv_size": [
+                    75.99996,
+                    85.00008
+                  ]
+                },
+                "west": {
+                  "uv": [
+                    0,
+                    18.99996
+                  ],
+                  "uv_size": [
+                    18.99996,
+                    85.00008
+                  ]
+                },
+                "up": {
+                  "uv": [
+                    20.00004,
+                    0
+                  ],
+                  "uv_size": [
+                    75.99996,
+                    18.99996
+                  ]
+                },
+                "down": {
+                  "uv": [
+                    96,
+                    18.99996
+                  ],
+                  "uv_size": [
+                    75.99996,
+                    -18.99996
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

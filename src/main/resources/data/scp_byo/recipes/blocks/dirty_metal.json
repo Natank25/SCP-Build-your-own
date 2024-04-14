@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " d ",
+    "dbd",
+    " d "
+  ],
+  "key": {
+    "b": {
+      "item": "minecraft:dirt"
+    },
+    "d": {
+      "item": "minecraft:iron_block"
+    }
+  },
+  "result": {
+    "item": "scp_byo:dirty_metal",
+    "count": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "sounds.scp_byo.sliding_door_open": "Sliding door opening",
+  "sounds.scp_byo.scp_096_trigger": "SCP 096 triggered",
+  "sounds.scp_byo.scp_096_scream": "SCP 096 screaming",
+  "sounds.scp_byo.scp_096_elevator_slam": "SCP 096 breaking blocks",
+  "sounds.scp_byo.scp_096_idle": "SCP 096 idling",
+  "sounds.scp_byo.scp_096_kill": "SCP 096 killing",
+  "sounds.scp_byo.scp_096_rage": "SCP 096 raging",
+  "sounds.scp_byo.scp_096_chase": "SCP 096 chasing"
+}
