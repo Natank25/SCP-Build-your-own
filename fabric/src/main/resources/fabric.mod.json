@@ -2,35 +2,34 @@
   "schemaVersion": 1,
   "id": "scp_byo",
   "version": "${version}",
-
   "name": "SCP: Build Your Own",
   "description": "A nice mod that allows you to build the SCP Fondation in minecraft, with all the functionalities that are expected",
-  "authors": ["Natank25", "Patato_91"],
+  "authors": [
+    "Natank25"
+  ],
+
   "contact": {},
-
   "license": "All Rights Reserved",
-  "icon": "mod_icon.png",
-
+  "icon": "icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
       "io.github.natank25.scp_byo.fabric.Scp_byoFabric"
     ]
   },
+
   "mixins": [
     "scp_byo.mixins.json",
     "scp_byo-common.mixins.json"
   ],
-  "depends": {
-    "fabricloader": ">=0.14.11",
-    "fabric-api": "*",
-    "minecraft": "~1.19.3",
-    "java": ">=17",
-    "cardinal-components-world" : "~5.1.0",
-    "cardinal-components-entity": "~5.1.0",
-    "geckolib": "4.0.6"
-  },
 
+  "depends": {
+    "fabricloader": ">=0.15.10",
+    "minecraft": ">=1.19.4",
+    "cardinal-components-world": "~5.1.0",
+    "cardinal-components-entity": "~5.1.0",
+    "geckolib": "4.2"
+  },
 
   "custom": {
     "cardinal-components": [
