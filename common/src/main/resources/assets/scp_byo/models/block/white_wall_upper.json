@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "side": "scp_byo:block/white_wall_top",
+    "top": "scp_byo:block/white_wall_top_top",
+    "bottom": "scp_byo:block/white_wall_top_bottom"
+  }
+}

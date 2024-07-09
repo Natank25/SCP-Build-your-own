@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "scp_byo:block/keycard_reader",
+      "y": 270
+    },
+    "facing=north": {
+      "model": "scp_byo:block/keycard_reader",
+      "y": 180
+    },
+    "facing=south": {
+      "model": "scp_byo:block/keycard_reader"
+    },
+    "facing=west": {
+      "model": "scp_byo:block/keycard_reader",
+      "y": 90
+    }
+  }
+}

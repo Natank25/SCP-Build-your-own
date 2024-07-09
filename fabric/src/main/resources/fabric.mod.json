@@ -10,11 +10,17 @@
 
   "contact": {},
   "license": "All Rights Reserved",
-  "icon": "icon.png",
+  "icon": "mod_icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
       "io.github.natank25.scp_byo.fabric.Scp_byoFabric"
+    ],
+    "fabric-datagen": [
+      "io.github.natank25.scp_byo.fabric.ModDatagen"
+    ],
+    "client": [
+      "io.github.natank25.scp_byo.fabric.Scp_byoClientFabric"
     ]
   },
 
@@ -25,10 +31,13 @@
 
   "depends": {
     "fabricloader": ">=0.15.10",
-    "minecraft": ">=1.19.4",
+    "minecraft": "~1.19.4",
+    "java": ">=17",
+    "architectury": ">=8.2.91",
+    "fabric-api": "*",
     "cardinal-components-world": "~5.1.0",
     "cardinal-components-entity": "~5.1.0",
-    "geckolib": "4.2"
+    "geckolib" : "4.2"
   },
 
   "custom": {

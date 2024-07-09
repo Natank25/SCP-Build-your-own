@@ -27,7 +27,7 @@ displayName="SCP: Build Your Own" #mandatory
 # A URL for the "homepage" for this mod, displayed in the mod UI
 #displayURL="http://example.com/" #optional
 # A file name (in the root of the mod JAR) containing a logo for display
-logoFile="icon.png" #optional
+logoFile="mod_icon.png" #optional
 # A text field displayed in the mod UI
 #credits="Thanks for this example mod goes to Java" #optional
 # A text field displayed in the mod UI
@@ -64,3 +64,10 @@ A nice mod that allows you to build the SCP Fondation in minecraft, with all the
    versionRange="[1.19.4,1.20)"
    ordering="NONE"
    side="BOTH"
+
+[[dependencies.scp_byo]]
+   modId = "architectury"
+   mandatory = true
+   versionRange = "[8.2.91,)"
+   ordering = "AFTER"
+   side = "BOTH"
