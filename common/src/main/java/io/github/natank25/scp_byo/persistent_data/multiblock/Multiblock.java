@@ -6,7 +6,6 @@ import net.minecraft.block.pattern.BlockPattern;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.particle.ParticleEffect;
-import net.minecraft.text.Text;
 import net.minecraft.util.math.*;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.World;
@@ -68,9 +67,8 @@ public class Multiblock {
 		return MathHelper.add(origin, this.forward, this.up, offsetLeft, offsetDown, offsetForwards);
 	}
 	
+	
 	public void create() {
-		
-		this.getWorld().getPlayers().forEach(p -> p.sendMessage(Text.of("Created multiblock")));
 	}
 	
 	public ParticleEffect getBreakParticles() {

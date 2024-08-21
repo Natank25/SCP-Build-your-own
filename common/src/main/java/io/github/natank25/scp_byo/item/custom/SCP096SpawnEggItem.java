@@ -2,15 +2,10 @@ package io.github.natank25.scp_byo.item.custom;
 
 import dev.architectury.core.item.ArchitecturySpawnEggItem;
 import dev.architectury.registry.registries.RegistrySupplier;
-import io.github.natank25.scp_byo.persistent_data.DoesSCP096Exist;
-import io.github.natank25.scp_byo.persistent_data.ScpByoDataManager;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.item.ItemUsageContext;
-import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
-
-import java.util.Objects;
 
 public class SCP096SpawnEggItem extends ArchitecturySpawnEggItem {
     public SCP096SpawnEggItem(RegistrySupplier<? extends EntityType<? extends MobEntity>> type, int primaryColor, int secondaryColor, Settings settings) {
@@ -19,7 +14,8 @@ public class SCP096SpawnEggItem extends ArchitecturySpawnEggItem {
 
     @Override
     public ActionResult useOnBlock(ItemUsageContext context) {
-
+		return ActionResult.SUCCESS;
+        /*
         if (context.getWorld().isClient()) {
             return ActionResult.SUCCESS;
         } else {
@@ -32,7 +28,7 @@ public class SCP096SpawnEggItem extends ArchitecturySpawnEggItem {
                 doesSCP096Exist.doesSCP096Exists = true;
                 return super.useOnBlock(context);
             }
-        }
+        }*/
     }
 
 }

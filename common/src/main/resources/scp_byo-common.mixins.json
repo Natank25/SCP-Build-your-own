@@ -4,11 +4,14 @@
   "package": "io.github.natank25.scp_byo.mixins",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "AbstractBlockMixin",
     "AbstractBlockStateMixin",
-    "SummonSCP096Mixin"
+    "PlayerManagerMixin",
+    "ServerWorldMixin",
+    "SummonSCP096Mixin",
+    "WorldMixin"
   ],
   "client": [
+    "ClientWorldMixin",
     "EntityRendererDispatcherMixin",
     "WorldRendererMixin",
     "WorldRenderGlobalEventsMixin"

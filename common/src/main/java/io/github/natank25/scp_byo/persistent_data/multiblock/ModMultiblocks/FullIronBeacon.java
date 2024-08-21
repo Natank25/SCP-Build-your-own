@@ -10,8 +10,4 @@ public class FullIronBeacon extends Multiblock {
 		super(pattern, result, world);
 	}
 	
-	@Override
-	public void tick() {
-		this.getWorld().getRandom();
-	}
 }

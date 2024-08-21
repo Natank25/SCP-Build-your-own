@@ -1,16 +1,11 @@
 package io.github.natank25.scp_byo.persistent_data;
 
 import io.github.natank25.scp_byo.persistent_data.multiblock.Multiblocks;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.PersistentStateManager;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
-
-import java.util.Objects;
 
 public class ScpByoDataManager extends PersistentState {
 	
@@ -22,7 +17,7 @@ public class ScpByoDataManager extends PersistentState {
 	}
 	private Multiblocks multiblocks;
 	private static final String multiblocksKey = "multiblocks";
-	private static ScpByoDataManager instance;
+	private static final String DataManagerKey = "scp_byo_data";
 	
 	
 	public Multiblocks getMultiblocks() {
@@ -34,7 +29,7 @@ public class ScpByoDataManager extends PersistentState {
 		multiblocks = new Multiblocks(world);
 	}
 	
-	private static ScpByoDataManager createFromNbt(NbtCompound nbt, World world){
+	public static ScpByoDataManager createFromNbt(NbtCompound nbt, World world) {
 		ScpByoDataManager dataManager = new ScpByoDataManager(world);
 		
 		dataManager.doesSCP096Exists = DoesSCP096Exist.createFromNbt(nbt.getCompound(doesSCP096ExistsKey));
@@ -59,22 +54,22 @@ public class ScpByoDataManager extends PersistentState {
 		return nbt;
 	}
 	
-	public static ScpByoDataManager getInstance(MinecraftServer server, World world) {
-		if (instance != null) {
-			return instance;
-		}
+	public static ScpByoDataManager getOrCreate(ServerWorld world) {
+		PersistentStateManager stateManager = world.getPersistentStateManager();
 		
-		
-		ServerWorld serverWorld = server.getWorld(world.getRegistryKey());
-		PersistentStateManager persistentStateManager = Objects.requireNonNull(serverWorld).getPersistentStateManager();
-		ScpByoDataManager dataManager = persistentStateManager.getOrCreate((nbtCompound) -> ScpByoDataManager.createFromNbt(nbtCompound, serverWorld), () -> new ScpByoDataManager(world), "scp_byo");
+		ScpByoDataManager dataManager = stateManager.getOrCreate(nbtCompound -> createFromNbt(nbtCompound, world), () -> new ScpByoDataManager(world), DataManagerKey);
 		
 		dataManager.markDirty();
 		
-		instance = dataManager;
-		
 		return dataManager;
 	}
-
+	
+	public void update(NbtCompound nbt, World world) {
+		ScpByoDataManager dataManager = createFromNbt(nbt, world);
+		this.multiblocks = dataManager.multiblocks;
+		this.doesSCP096Exists = dataManager.doesSCP096Exists;
+	}
+	
+	
 }
 

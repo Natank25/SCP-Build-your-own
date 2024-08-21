@@ -4,12 +4,13 @@ import io.github.natank25.scp_byo.block.custom.ElevatorWallBlock;
 import io.github.natank25.scp_byo.block.custom.ExtendableBlock;
 import io.github.natank25.scp_byo.persistent_data.multiblock.ModMultiblocks.SCP096Cage;
 import io.github.natank25.scp_byo.persistent_data.multiblock.Multiblock;
-import io.github.natank25.scp_byo.persistent_data.multiblock.Multiblocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemUsageContext;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
@@ -33,6 +34,10 @@ public class Wrench extends Item {
         BlockPos pos = context.getBlockPos();
         World world = context.getWorld();
         //endregion
+        
+        if (block == Blocks.NETHERITE_BLOCK) {
+            player.sendMessage(Text.literal(world.isClient + " " + ((World) world).scp_byoGetDataManager().getMultiblocks().writeNbt(new NbtCompound()).asString()));
+        }
 
         if (block instanceof ElevatorWallBlock) {
             if (state.get(ElevatorWallBlock.STICKY)) {
@@ -49,9 +54,11 @@ public class Wrench extends Item {
 
         if (world.isClient()) return ActionResult.CONSUME;
         
-        if(Multiblocks.get(world).tryAssemble(pos).isPresent()) return ActionResult.SUCCESS;
         
-        Optional<? extends Multiblock> potentialMultiblock = Multiblocks.get(world).getMultiblock(pos);
+        if (((World) world).scp_byoGetDataManager().getMultiblocks().tryAssemble(pos).isPresent())
+            return ActionResult.SUCCESS;
+        
+        Optional<? extends Multiblock> potentialMultiblock = ((World) world).scp_byoGetDataManager().getMultiblocks().getMultiblock(pos);
         if(potentialMultiblock.isPresent()){
             
             if(potentialMultiblock.get() instanceof SCP096Cage multiblock){

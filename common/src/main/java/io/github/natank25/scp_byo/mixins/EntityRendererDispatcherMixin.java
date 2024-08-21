@@ -15,7 +15,7 @@ public class EntityRendererDispatcherMixin {
 	
 	@Inject(method = "render", at = @At("HEAD"))
 	private <E extends Entity> void render(E entity, double x, double y, double z, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
-		/*
+		/* TODO
 		ClientPlayerEntity player = MinecraftClient.getInstance().player;
 		
  		if (!player.getComponent(ModEntitiesComponents.HAS_SEEN_SCP).getValue() && entity instanceof ScpEntity && player.canSee(entity)) {
@@ -29,7 +29,7 @@ public class EntityRendererDispatcherMixin {
 			
 			ClientPlayNetworking.send(ModConstants.Networking.GRANT_ADVANCEMENT_PACKET_ID, buf);
 		}
+		*/
 		
-		 */
 	}
 }

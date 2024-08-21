@@ -69,6 +69,7 @@ processResources {
 shadowJar {
     configurations = [project.configurations.shadowCommon]
     archiveClassifier = "dev-shadow"
+    exclude "architectury.common.json"
 }
 
 remapJar {

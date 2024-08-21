@@ -1,6 +1,5 @@
 package io.github.natank25.scp_byo.mixins;
 
-import io.github.natank25.scp_byo.persistent_data.ScpByoDataManager;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
@@ -14,6 +13,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class AbstractBlockStateMixin {
 	@Inject(method = "onStateReplaced", at=@At("HEAD"))
 	private void onStateReplaced(World world, BlockPos pos, BlockState state, boolean moved, CallbackInfo ci) {
-		ScpByoDataManager.getInstance(world.getServer(), world).getMultiblocks().tryDisassemble(pos);
+		((World) world).scp_byoGetDataManager().getMultiblocks().tryDisassemble(pos);
 	}
 }

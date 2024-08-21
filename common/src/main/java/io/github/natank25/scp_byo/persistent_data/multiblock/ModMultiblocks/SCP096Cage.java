@@ -4,12 +4,17 @@ import io.github.natank25.scp_byo.advancements.ModCriterions;
 import io.github.natank25.scp_byo.entity.ModEntities;
 import io.github.natank25.scp_byo.entity.custom.Scp_096Entity;
 import io.github.natank25.scp_byo.persistent_data.multiblock.Multiblock;
+import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.pattern.BlockPattern;
+import net.minecraft.block.pattern.BlockPatternBuilder;
+import net.minecraft.block.pattern.CachedBlockPosition;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.predicate.block.BlockStatePredicate;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -32,6 +37,10 @@ public class SCP096Cage extends Multiblock {
 	private final Random random;
 	private int totalDamage = 0;
 	private int updateCooldown = 0;
+	
+	public static BlockPattern getBlockPattern() {
+		return BlockPatternBuilder.start().aisle("iiiii", "iiiii", "iiiii", "iiiii", "iiiii").aisle("iiiii", "iaaai", "iaaai", "iaaai", "iiiii").aisle("iiiii", "iaaai", "iaaai", "iaaai", "iiiii").aisle("iiiii", "iaaai", "iaaai", "iaaai", "iiiii").aisle("iiiii", "iiiii", "iiiii", "iiiii", "iiiii").where('i', CachedBlockPosition.matchesBlockState(BlockStatePredicate.forBlock(Blocks.IRON_BLOCK))).where('a', CachedBlockPosition.matchesBlockState(AbstractBlock.AbstractBlockState::isAir)).build();
+	}
 	
 	public SCP096Cage(BlockPattern pattern, BlockPattern.@NotNull Result result, World world) {
 		super(pattern, result, world);

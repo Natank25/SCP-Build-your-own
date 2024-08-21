@@ -7,8 +7,6 @@ import io.github.natank25.scp_byo.entity.goals.scp_096.SCP096AttackTargetGoal;
 import io.github.natank25.scp_byo.entity.goals.scp_096.SCP096BlockBreakingGoal;
 import io.github.natank25.scp_byo.entity.goals.scp_096.SCP096MoveToTargetGoal;
 import io.github.natank25.scp_byo.entity.goals.scp_096.SCP096StayLockedGoal;
-import io.github.natank25.scp_byo.persistent_data.DoesSCP096Exist;
-import io.github.natank25.scp_byo.persistent_data.ScpByoDataManager;
 import io.github.natank25.scp_byo.sounds.ModSounds;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -36,7 +34,6 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.PlaySoundFromEntityS2CPacket;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.registry.Registries;
-import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -111,6 +108,8 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
 	public static boolean isValidNaturalSpawn(EntityType<? extends Scp_096Entity> type, WorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random) {
 		if (!Objects.requireNonNull(world.getServer()).getGameRules().getBoolean(ModGamerules.CAN_SCP096_SPAWN)) return false;
 		if (((World) world).getTime() < 20*60*20) return false;
+		/*
+		TODO
 		DoesSCP096Exist doesSCP096Exist = ScpByoDataManager.getInstance(Objects.requireNonNull(world.getServer()), world.getServer().getWorld(World.OVERWORLD)).getDoesSCP096Exists();
 		
 		if (doesSCP096Exist.doesSCP096Exists) return false;
@@ -119,7 +118,8 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
 		if (!blockState.isIn(BlockTags.ANIMALS_SPAWNABLE_ON)) return false;
 		
 		doesSCP096Exist.doesSCP096Exists = true;
-		return true;
+		return true;*/
+		return false;
 	}
 	
 	public static DefaultAttributeContainer.Builder setAttributes() {
@@ -254,7 +254,7 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
 	public void remove(RemovalReason reason) {
 		this.stopAllSounds(this.getWorld());
 		if (!this.world.isClient()) {
-			ScpByoDataManager.getInstance(Objects.requireNonNull(this.getServer()), this.getWorld()).getDoesSCP096Exists().doesSCP096Exists = false;
+			((World) world).scp_byoGetDataManager().getDoesSCP096Exists().doesSCP096Exists = false;
 			currentScp = null;
 		}
 		
