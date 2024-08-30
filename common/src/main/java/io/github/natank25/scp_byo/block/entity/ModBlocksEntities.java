@@ -25,5 +25,6 @@ public enum ModBlocksEntities {
 	}
 	
 	public static final RegistrySupplier<BlockEntityType<SlidingDoorBlockEntity>> SLIDING_DOOR_BLOCK_ENTITY = registerBlockEntity("sliding_door_entity", () -> BlockEntityType.Builder.create(SlidingDoorBlockEntity::new, ModBlocks.SLIDING_DOOR.get()).build(null));
+	public static final RegistrySupplier<BlockEntityType<KeycardReaderBlockEntity>> KEYCARD_READER_BLOCK_ENTITY = registerBlockEntity("keycard_reader_entity", () -> BlockEntityType.Builder.create(KeycardReaderBlockEntity::new, ModBlocks.KEYCARD_READER.get()).build(null));
 	
 }

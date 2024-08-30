@@ -12,9 +12,11 @@ import net.minecraft.advancement.AdvancementFrame;
 import net.minecraft.advancement.AdvancementRewards;
 import net.minecraft.advancement.criterion.ImpossibleCriterion;
 import net.minecraft.block.Blocks;
+import net.minecraft.data.DataWriter;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 public class ModAdvancementsProvider extends FabricAdvancementProvider {
@@ -61,6 +63,16 @@ public class ModAdvancementsProvider extends FabricAdvancementProvider {
 	
 	private static String createAdvId(String advId){
 		return Scp_byo.MOD_ID+"/"+advId;
+	}
+	
+	@Override
+	public CompletableFuture<?> run(DataWriter writer) {
+		return null;
+	}
+	
+	@Override
+	public String getName() {
+		return "";
 	}
 	
 	/*

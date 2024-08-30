@@ -5,7 +5,6 @@ import io.github.natank25.scp_byo.entity.ModEntities;
 import io.github.natank25.scp_byo.entity.custom.Scp_096Entity;
 import io.github.natank25.scp_byo.persistent_data.multiblock.Multiblock;
 import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.pattern.BlockPattern;
 import net.minecraft.block.pattern.BlockPatternBuilder;
@@ -14,6 +13,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.predicate.block.BlockStatePredicate;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
@@ -38,22 +38,47 @@ public class SCP096Cage extends Multiblock {
 	private int totalDamage = 0;
 	private int updateCooldown = 0;
 	
-	public static BlockPattern getBlockPattern() {
-		return BlockPatternBuilder.start().aisle("iiiii", "iiiii", "iiiii", "iiiii", "iiiii").aisle("iiiii", "iaaai", "iaaai", "iaaai", "iiiii").aisle("iiiii", "iaaai", "iaaai", "iaaai", "iiiii").aisle("iiiii", "iaaai", "iaaai", "iaaai", "iiiii").aisle("iiiii", "iiiii", "iiiii", "iiiii", "iiiii").where('i', CachedBlockPosition.matchesBlockState(BlockStatePredicate.forBlock(Blocks.IRON_BLOCK))).where('a', CachedBlockPosition.matchesBlockState(AbstractBlock.AbstractBlockState::isAir)).build();
-	}
-	
-	public SCP096Cage(BlockPattern pattern, BlockPattern.@NotNull Result result, World world) {
-		super(pattern, result, world);
+	public SCP096Cage(BlockPattern.@NotNull Result result, World world) {
+		super(result, world);
 		this.insideBox = this.getShape().getBoundingBox().contract(1);
 		this.random = Random.create(this.getFrontTopLeftPos().asLong());
+	}
+	
+	public static BlockPattern getBlockPattern() {
+		return BlockPatternBuilder.start().aisle("iiiii", "iiiii", "iiiii", "iiiii", "iiiii").aisle("iiiii", "iaaai", "iaaai", "iaaai", "iiiii").aisle("iiiii", "iaaai", "iaaai", "iaaai", "iiiii").aisle("iiiii", "iaaai", "iaaai", "iaaai", "iiiii").aisle("iiiii", "iiiii", "iiiii", "iiiii", "iiiii").where('i', CachedBlockPosition.matchesBlockState(BlockStatePredicate.forBlock(Blocks.IRON_BLOCK))).where('a', CachedBlockPosition.matchesBlockState(AbstractBlock.AbstractBlockState::isAir)).build();
 	}
 	
 	private static boolean isNotInside(int x, int y, int z) {
 		return x >= 1 && x < 4 && y >= 1 && y < 4 && z >= 1 && z < 4;
 	}
 	
+	@Override
+	public void applyGenericUpdatePacket(PacketByteBuf buf) {
+		BlockPos pos = buf.readBlockPos();
+		this.damageBlock(pos);
+	}
+	
 	public boolean containsScp() {
 		return this.world.getEntitiesByClass(Scp_096Entity.class, this.insideBox.offset(this.globalBottomLeftPos.add(1, 1, 1)), scp096Entity -> true).stream().findFirst().isPresent();
+	}
+	
+	@Override
+	public void create() {
+		if (!this.getWorld().isClient() && this.containsScp()) {
+			for (PlayerEntity player : this.world.getEntitiesByClass(PlayerEntity.class, this.insideBox.offset(this.centerBlockPos).expand(15), player -> true)) {
+				ModCriterions.TRAP_SCP.trigger((ServerPlayerEntity) player, ModEntities.SCP_096.get());
+			}
+		}
+	}
+	
+	@Override
+	public void destroy() {
+		for (BlockPos blockPos : this.blockPosToProgress.keySet()) {
+			setBlockBreakingInfo(blockPos, -1);
+		}
+		
+		this.blockPosToProgress.clear();
+		super.destroy();
 	}
 	
 	public Box getInsideBox() {
@@ -67,7 +92,7 @@ public class SCP096Cage extends Multiblock {
 		int counter = 0;
 		for (Map.Entry<BlockPos, Integer> entry : this.blockPosToProgress.entrySet()) {
 			NbtCompound blockNbt = new NbtCompound();
-			BlockPos pos = entry.getKey();
+			BlockPos pos = entry.getKey(); //TODO optimize -> 1 nbt compound per damage, each nbt compound have list of blocks pos
 			blockNbt.putIntArray("pos", new int[]{pos.getX(), pos.getY(), pos.getZ()});
 			blockNbt.putInt("damage", entry.getValue());
 			
@@ -80,15 +105,6 @@ public class SCP096Cage extends Multiblock {
 	
 	public Optional<Scp_096Entity> getScp() {
 		return this.world.getEntitiesByClass(Scp_096Entity.class, this.insideBox.offset(this.globalBottomLeftPos.add(1, 1, 1)), scp096Entity -> true).stream().findFirst();
-	}
-	
-	@Override
-	public void create() {
-		if (!this.getWorld().isClient() && this.containsScp()){
-			for (PlayerEntity player : this.world.getEntitiesByClass(PlayerEntity.class, this.insideBox.offset(this.centerBlockPos).expand(15), player -> true)) {
-				ModCriterions.TRAP_SCP.trigger((ServerPlayerEntity) player, ModEntities.SCP_096.get());
-			}
-		}
 	}
 	
 	@Override
@@ -120,7 +136,7 @@ public class SCP096Cage extends Multiblock {
 			
 			if (totalIronBlocks >= requiredIron) {
 				for (BlockPos blockPos : this.blockPosToProgress.keySet()) {
-					this.world.setBlockBreakingInfo(blockPos.hashCode(), blockPos, -1);
+					setBlockBreakingInfo(blockPos, -1);
 				}
 				this.blockPosToProgress.clear();
 				player.getInventory().remove(itemStack -> itemStack.isItemEqual(new ItemStack(Items.IRON_BLOCK)), requiredIron, player.playerScreenHandler.getCraftingInput());
@@ -136,45 +152,44 @@ public class SCP096Cage extends Multiblock {
 	
 	@Override
 	public void tick() {
+		if (this.world.isClient()) return;
 		this.updateCooldown++;
-		if (this.updateCooldown % 20 == 0) {
+		if (this.updateCooldown % 3 == 0) { // 20
 			this.updateCooldown = 0;
-			if (this.random.nextInt(this.containsScp() ? 50 : 400) == 0) {
+			if (this.containsScp() && this.random.nextInt(10) == 0) { // 60
 				BlockPos pos = this.getRandomBlock();
 				
-				if (!this.blockPosToProgress.containsKey(pos)) this.blockPosToProgress.put(pos, -1);
+				this.damageBlock(pos);
 				
-				int newProgress = this.blockPosToProgress.get(pos) + 1;
+				PacketByteBuf buf = this.getEmptyUpdatePacket();
+				buf.writeBlockPos(pos);
 				
-				this.blockPosToProgress.put(pos, newProgress);
-				this.world.setBlockBreakingInfo(pos.hashCode(), pos, newProgress);
-				this.totalDamage++;
-				if (newProgress == 10) {
-					this.getWorld().updateNeighbors(pos, this.getWorld().getBlockState(pos).getBlock());
-					BlockState state = this.world.getBlockState(pos);
-					this.world.breakBlock(pos, true);
-					//TODO this.world.getComponent(ModWorldComponents.MULTIBLOCKS).tryDisassemble(pos);
-					this.getWorld().updateNeighbors(pos, this.getWorld().getBlockState(pos).getBlock());
-				}
+				this.sendGenericUpdatePacket(buf);
 			}
-			
 		}
 		
-		
-		for (Map.Entry<BlockPos, Integer> entry : this.blockPosToProgress.entrySet()) {
-			BlockPos pos = entry.getKey();
-			this.world.setBlockBreakingInfo(pos.hashCode(), pos, entry.getValue());
+		if (this.containsScp()) {
+			for (Map.Entry<BlockPos, Integer> entry : this.blockPosToProgress.entrySet()) {
+				BlockPos pos = entry.getKey();
+				setBlockBreakingInfo(pos, entry.getValue());
+			}
 		}
 	}
 	
-	@Override
-	protected void destroy() {
-		for (BlockPos blockPos : this.blockPosToProgress.keySet()) {
-			this.world.setBlockBreakingInfo(blockPos.hashCode(), blockPos, -1);
-		}
+	private void damageBlock(BlockPos pos) {
+		if (!this.blockPosToProgress.containsKey(pos)) this.blockPosToProgress.put(pos, -1);
 		
-		this.blockPosToProgress.clear();
-		super.destroy();
+		int newProgress = this.blockPosToProgress.get(pos) + 1;
+		
+		this.blockPosToProgress.put(pos, newProgress);
+		setBlockBreakingInfo(pos, newProgress);
+		this.totalDamage++;
+		
+		if (newProgress == 10) {
+			this.getWorld().updateNeighbors(pos, this.getWorld().getBlockState(pos).getBlock());
+			this.world.breakBlock(pos, true);
+			this.selfDisassemble();
+		}
 	}
 	
 	private BlockPos getRandomBlock() {
@@ -191,5 +206,10 @@ public class SCP096Cage extends Multiblock {
 		}
 		
 		return this.globalBottomLeftPos.add(x, y, z);
+	}
+	
+	private void setBlockBreakingInfo(BlockPos blockPos, int progress) {
+		if (this.world.isClient) return;
+		this.world.setBlockBreakingInfo(blockPos.hashCode(), blockPos, progress);
 	}
 }

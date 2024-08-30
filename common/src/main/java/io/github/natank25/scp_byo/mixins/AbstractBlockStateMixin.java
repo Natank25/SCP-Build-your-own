@@ -11,8 +11,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(AbstractBlock.AbstractBlockState.class)
 public class AbstractBlockStateMixin {
-	@Inject(method = "onStateReplaced", at=@At("HEAD"))
+	@Inject(method = "onStateReplaced", at = @At("HEAD"))
 	private void onStateReplaced(World world, BlockPos pos, BlockState state, boolean moved, CallbackInfo ci) {
-		((World) world).scp_byoGetDataManager().getMultiblocks().tryDisassemble(pos);
+		world.scp_byoGetDataManager().getMultiblocks().tryDisassemble(pos);
 	}
 }

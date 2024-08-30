@@ -10,21 +10,21 @@ import net.minecraft.world.Heightmap;
 import net.minecraft.world.biome.SpawnSettings;
 
 public enum ModWorldGeneration {
-    ;
-
-    public static void generateModWorldGen() {
-
-        addSpawns();
-    }
-
-
-    private static void addSpawns() {
-        
-        BiomeModifications.addProperties((biomeContext, mutable) -> {
-            mutable.getSpawnProperties().addSpawn(SpawnGroup.AMBIENT, new SpawnSettings.SpawnEntry(ModEntities.SCP_096.get(), 50,1,1));
-        });
-        
-        SpawnPlacementsRegistry.register(ModEntities.SCP_096, SpawnRestriction.Location.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, Scp_096Entity::isValidNaturalSpawn);
-
-    }
+	;
+	
+	public static void generateModWorldGen() {
+		
+		addSpawns();
+	}
+	
+	
+	private static void addSpawns() {
+		
+		BiomeModifications.addProperties((biomeContext, mutable) -> {
+			mutable.getSpawnProperties().addSpawn(SpawnGroup.AMBIENT, new SpawnSettings.SpawnEntry(ModEntities.SCP_096.get(), 50, 1, 1));
+		});
+		
+		SpawnPlacementsRegistry.register(ModEntities.SCP_096, SpawnRestriction.Location.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, Scp_096Entity::isValidNaturalSpawn);
+		
+	}
 }

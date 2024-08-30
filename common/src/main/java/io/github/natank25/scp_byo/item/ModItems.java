@@ -24,10 +24,6 @@ public class ModItems {
 	public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(MOD_ID, RegistryKeys.ITEM);
 	
 	public static final CreativeTabRegistry.TabSupplier SCP_FONDATION_ITEM_GROUP = CreativeTabRegistry.create(new Identifier(Scp_byo.MOD_ID, "main_creative_tab"), () -> new ItemStack(ModBlocks.OFFICE_WALL.get().asItem()));
-	
-	public static Item.Settings defaultSettings() {return new Item.Settings().arch$tab(SCP_FONDATION_ITEM_GROUP);}
-	
-	
 	//region Normal Items
 	public static final RegistrySupplier<Item> KEYCARD_1 = registerItem("keycard_1", () -> new Item(defaultSettings().maxCount(1)));
 	public static final RegistrySupplier<Item> KEYCARD_2 = registerItem("keycard_2", () -> new Item(defaultSettings().maxCount(1)));
@@ -35,18 +31,17 @@ public class ModItems {
 	public static final RegistrySupplier<Item> KEYCARD_4 = registerItem("keycard_4", () -> new Item(defaultSettings().maxCount(1)));
 	public static final RegistrySupplier<Item> KEYCARD_5 = registerItem("keycard_5", () -> new Item(defaultSettings().maxCount(1)));
 	public static final RegistrySupplier<Item> KEYCARD_6 = registerItem("keycard_6", () -> new Item(defaultSettings().maxCount(1)));
-	
-	//endregion
-	
-	
 	//region Custom Items
 	public static final RegistrySupplier<Item> WRENCH = registerItem("wrench", () -> new Wrench(defaultSettings().maxCount(1).recipeRemainder(ITEMS.getRegistrar().get(Utils.newIdentifier("wrench")))));
 	
-	public static final RegistrySupplier<Item> SLIDING_DOOR_ITEM = registerItem("sliding_door", ModItems::getSlidingDoorItem);
-	
-	public static final RegistrySupplier<Item> SCP_096_SPAWN_EGG = registerItem("scp_096_spawn_egg", () -> new SCP096SpawnEggItem(ModEntities.SCP_096, 0xECECEC, 0xD8D8D8, defaultSettings()));
 	//endregion
+	public static final RegistrySupplier<Item> SLIDING_DOOR_ITEM = registerItem("sliding_door", ModItems::getSlidingDoorItem);
+	public static final RegistrySupplier<Item> SCP_096_SPAWN_EGG = registerItem("scp_096_spawn_egg", () -> new SCP096SpawnEggItem(ModEntities.SCP_096, 0xECECEC, 0xD8D8D8, defaultSettings()));
 	
+	public static Item.Settings defaultSettings() {
+		return new Item.Settings().arch$tab(SCP_FONDATION_ITEM_GROUP);
+	}
+	//endregion
 	
 	public static RegistrySupplier<Item> registerItem(String name, Supplier<Item> item) {
 		return ITEMS.register(Utils.newIdentifier(name), item);

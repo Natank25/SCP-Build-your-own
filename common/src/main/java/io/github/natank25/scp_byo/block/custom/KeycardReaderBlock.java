@@ -1,7 +1,10 @@
 package io.github.natank25.scp_byo.block.custom;
 
+import io.github.natank25.scp_byo.block.entity.KeycardReaderBlockEntity;
+import io.github.natank25.scp_byo.block.entity.ModBlocksEntities;
 import io.github.natank25.scp_byo.item.ModItems;
 import net.minecraft.block.*;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.enums.WallMountLocation;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
@@ -23,8 +26,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.stream.Stream;
 
-// TODO: Being able to be placed on floor and ceiling
-public class KeycardReaderBlock extends ButtonBlock {
+public class KeycardReaderBlock extends ButtonBlock implements BlockEntityProvider {
 	
 	private static final IntProperty KEYCARD_LEVEL = IntProperty.of("keycard_level", 1, 6);
 	
@@ -36,7 +38,7 @@ public class KeycardReaderBlock extends ButtonBlock {
 	//endregion
 	
 	public KeycardReaderBlock(Settings settings) {
-		super(settings, BlockSetType.STONE,20, false);
+		super(settings, BlockSetType.STONE, 20, false);
 		
 		this.setDefaultState(this.getStateManager().getDefaultState().with(KEYCARD_LEVEL, 1));
 	}
@@ -57,8 +59,17 @@ public class KeycardReaderBlock extends ButtonBlock {
 	private static VoxelShape makeShapeWest() {
 		return Stream.of(Block.createCuboidShape(15, 3, 6, 16, 7.75, 10), Block.createCuboidShape(15, 10.4375, 6, 16, 11, 10), Block.createCuboidShape(15, 7.75, 6, 16, 10.4375, 6.5625), Block.createCuboidShape(15, 7.75, 9.4375, 16, 10.4375, 10), Block.createCuboidShape(15.125, 7.75, 6.5625, 16, 10.5625, 9.4375)).reduce((v1, v2) -> VoxelShapes.combineAndSimplify(v1, v2, BooleanBiFunction.OR)).get();
 	}
+	
+	@Override
+	public boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos) {
+		return super.canPlaceAt(state, world, pos);
+	}
 	//endregion
 	
+	@Override
+	public @Nullable BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+		return new KeycardReaderBlockEntity(pos, state);
+	}
 	
 	@Override
 	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
@@ -74,17 +85,16 @@ public class KeycardReaderBlock extends ButtonBlock {
 	@Nullable
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
-		return this.getDefaultState().with(FACE, WallMountLocation.WALL).with(FACING, ctx.getHorizontalPlayerFacing()).with(POWERED, false);
-	}
-	
-	@Override
-	public boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos) {
-		return super.canPlaceAt(state, world, pos);
+		return this.getDefaultState().with(FACE, WallMountLocation.WALL).with(FACING, ctx.getHorizontalPlayerFacing().getOpposite()).with(POWERED, false);
 	}
 	
 	@Override
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+		KeycardReaderBlockEntity blockEntity = world.getBlockEntity(pos, ModBlocksEntities.KEYCARD_READER_BLOCK_ENTITY.get()).orElseThrow();
+		
+		
 		if (state.get(POWERED)) return ActionResult.CONSUME;
+		
 		
 		if (player.isHolding(ModItems.KEYCARD_1.get()) || player.isHolding(ModItems.KEYCARD_2.get()) || player.isHolding(ModItems.KEYCARD_3.get()) || player.isHolding(ModItems.KEYCARD_4.get()) || player.isHolding(ModItems.KEYCARD_5.get()) || player.isHolding(ModItems.KEYCARD_6.get())) {
 			if (player.isHolding(ModItems.KEYCARD_1.get()) && state.get(KEYCARD_LEVEL) == 1) {
@@ -102,10 +112,25 @@ public class KeycardReaderBlock extends ButtonBlock {
 			}
 			player.sendMessage(Text.literal("You have inserted the keycard but nothing happened."), true);
 		} else if (player.isHolding(ModItems.WRENCH.get())) {
-			player.sendMessage(state.get(KEYCARD_LEVEL) == 6 ? Text.literal("Changed keycard level required to 1.") : Text.literal("Changed keycard level required to " + (state.get(KEYCARD_LEVEL) + 1) + "."), true);
-			world.setBlockState(pos, state.cycle(KEYCARD_LEVEL), 3);
 			
-			return ActionResult.success(world.isClient());
+			if (blockEntity.hasOwner()) {
+				if (blockEntity.getOwner().equals(player.getUuid())) {
+					
+					
+					player.sendMessage(state.get(KEYCARD_LEVEL) == 6 ? Text.literal("Changed keycard level required to 1.") : Text.literal("Changed keycard level required to " + (state.get(KEYCARD_LEVEL) + 1) + "."), true);
+					world.setBlockState(pos, state.cycle(KEYCARD_LEVEL), 3);
+					
+					return ActionResult.success(world.isClient());
+				} else {
+					
+					player.sendMessage(Text.literal("You cannot modify this keycard reader."), true);
+				}
+			} else {
+				world.getBlockEntity(pos, ModBlocksEntities.KEYCARD_READER_BLOCK_ENTITY.get()).orElseThrow().setOwnerUUID(player.getUuid());
+				player.sendMessage(state.get(KEYCARD_LEVEL) == 6 ? Text.literal("Changed keycard level required to 1.") : Text.literal("Changed keycard level required to " + (state.get(KEYCARD_LEVEL) + 1) + "."), true);
+				world.setBlockState(pos, state.cycle(KEYCARD_LEVEL), 3);
+			}
+			return ActionResult.CONSUME;
 		}
 		return ActionResult.PASS;
 	}

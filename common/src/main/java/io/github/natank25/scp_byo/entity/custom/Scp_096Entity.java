@@ -7,6 +7,10 @@ import io.github.natank25.scp_byo.entity.goals.scp_096.SCP096AttackTargetGoal;
 import io.github.natank25.scp_byo.entity.goals.scp_096.SCP096BlockBreakingGoal;
 import io.github.natank25.scp_byo.entity.goals.scp_096.SCP096MoveToTargetGoal;
 import io.github.natank25.scp_byo.entity.goals.scp_096.SCP096StayLockedGoal;
+import io.github.natank25.scp_byo.persistent_data.DoesSCP096Exist;
+import io.github.natank25.scp_byo.persistent_data.multiblock.ModMultiblocks.SCP096Cage;
+import io.github.natank25.scp_byo.persistent_data.multiblock.Multiblock;
+import io.github.natank25.scp_byo.persistent_data.multiblock.Multiblocks;
 import io.github.natank25.scp_byo.sounds.ModSounds;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -34,6 +38,7 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.PlaySoundFromEntityS2CPacket;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -64,20 +69,18 @@ import java.util.function.Supplier;
 
 //chase ? not moving animation : sitting animation (WIP) (need to re add SCP096Pose.SITTING)
 public class Scp_096Entity extends ScpEntity implements GeoEntity {
-	public static final Supplier<EntityType<Scp_096Entity>> TYPE = Suppliers.memoize(() ->  EntityType.Builder.create(Scp_096Entity::new, SpawnGroup.MONSTER).setDimensions(0.6f,2.5f).build("scp_096"));
-	
 	private static final UUID ATTACKING_SPEED_BOOST_ID = UUID.fromString("020E0DFB-87AE-4653-9556-831010E291A0");
 	private static final TrackedData<Integer> SCP_POSE;
 	private static final EntityAttributeModifier ATTACKING_SPEED_BOOST;
 	private static final float STEP_HEIGHT = 4.0F;
-	private static Scp_096Entity currentScp = null;
+	private static final TrackedData<Float> SCPHealth;
+	public static final Supplier<EntityType<Scp_096Entity>> TYPE = Suppliers.memoize(() -> EntityType.Builder.create(Scp_096Entity::new, SpawnGroup.MONSTER).setDimensions(0.6f, 2.5f).build("scp_096"));
 	
 	static {
 		SCP_POSE = DataTracker.registerData(Scp_096Entity.class, TrackedDataHandlerRegistry.INTEGER);
 		SCPHealth = DataTracker.registerData(Scp_096Entity.class, TrackedDataHandlerRegistry.FLOAT);
 		ATTACKING_SPEED_BOOST = new EntityAttributeModifier(ATTACKING_SPEED_BOOST_ID, "Attacking speed boost", 0.20000000596046448, EntityAttributeModifier.Operation.ADDITION);
 	}
-	
 	
 	private final AnimatableInstanceCache animatableInstanceCache = new SingletonAnimatableInstanceCache(this);
 	private final Collection<SoundEvent> playingSounds = new HashSet<>();
@@ -87,8 +90,7 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
 	private boolean chasing = false;
 	private long startChaseTick = 0L;
 	private boolean hasPlayerSeen = false;
-	private static final TrackedData<Float> SCPHealth;
-	private final boolean isInCage = false;
+	private boolean isInCage = false;
 	
 	public Scp_096Entity(EntityType<? extends PathAwareEntity> entityType, World world) {
 		super(entityType, world);
@@ -99,27 +101,22 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
 		this.setPathfindingPenalty(PathNodeType.DAMAGE_FIRE, 0.0F);
 		this.setPathfindingPenalty(PathNodeType.RAIL, 0.0F);
 		this.setPersistent();
-		currentScp = this;
 		
 		
+		DoesSCP096Exist.get(world).setDoesSCP096Exists(true);
 	}
 	
-	
 	public static boolean isValidNaturalSpawn(EntityType<? extends Scp_096Entity> type, WorldAccess world, SpawnReason spawnReason, BlockPos pos, Random random) {
-		if (!Objects.requireNonNull(world.getServer()).getGameRules().getBoolean(ModGamerules.CAN_SCP096_SPAWN)) return false;
-		if (((World) world).getTime() < 20*60*20) return false;
-		/*
-		TODO
-		DoesSCP096Exist doesSCP096Exist = ScpByoDataManager.getInstance(Objects.requireNonNull(world.getServer()), world.getServer().getWorld(World.OVERWORLD)).getDoesSCP096Exists();
+		if (!Objects.requireNonNull(world.getServer()).getGameRules().getBoolean(ModGamerules.CAN_SCP096_SPAWN))
+			return false;
+		if (((World) world).getTime() < 20 * 60 * 20) return false; // Can't spawn on the first day of the world
 		
-		if (doesSCP096Exist.doesSCP096Exists) return false;
+		DoesSCP096Exist doesSCP096Exist = DoesSCP096Exist.get((World) world);
+		
+		if (doesSCP096Exist.getDoesSCP096Exist()) return false; // Can't spawn if a scp 096 already exists
 		
 		BlockState blockState = world.getBlockState(pos.down());
-		if (!blockState.isIn(BlockTags.ANIMALS_SPAWNABLE_ON)) return false;
-		
-		doesSCP096Exist.doesSCP096Exists = true;
-		return true;*/
-		return false;
+		return blockState.isIn(BlockTags.ANIMALS_SPAWNABLE_ON); // Can only spawn if animals can
 	}
 	
 	public static DefaultAttributeContainer.Builder setAttributes() {
@@ -180,29 +177,8 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
 	public void setIdling(boolean idling) {
 		this.idling = idling;
 	}
-	/*
-	private Optional<SCP096Cage> getCage(){
-		Optional optional = this.getWorld().getComponent(ModWorldComponents.MULTIBLOCKS).getMultiblock(this.getBlockPos());
-		if (optional.isEmpty()) return Optional.empty();
-		
-		if (!(optional.get() instanceof SCP096Cage cage)) return Optional.of((SCP096Cage) optional.get());
-		
-		return Optional.empty();
-	}
 	
-	private boolean isTrulyInCage() {
-		Optional optional = this.getWorld().getComponent(ModWorldComponents.MULTIBLOCKS).getMultiblock(this.getBlockPos());
-		if (optional.isEmpty()) return false;
-		
-		if (!(optional.get() instanceof SCP096Cage cage)) return false;
-		
-		Optional<Scp_096Entity> scp = cage.getScp();
-		return scp.isPresent() && scp.get().equals(this);
-		
-	}
-	
-	*/
-	public boolean isInCage(){
+	public boolean isInCage() {
 		return this.isInCage;
 	}
 	
@@ -252,17 +228,13 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
 	
 	@Override
 	public void remove(RemovalReason reason) {
-		this.stopAllSounds(this.getWorld());
 		if (!this.world.isClient()) {
-			((World) world).scp_byoGetDataManager().getDoesSCP096Exists().doesSCP096Exists = false;
-			currentScp = null;
+			DoesSCP096Exist.get(this.getWorld()).setDoesSCP096Exists(false);
 		}
-		
+		this.stopAllSounds(this.getWorld());
 		
 		super.remove(reason);
 	}
-	
-	
 	
 	@Override
 	public boolean shouldRender(double distance) {
@@ -274,11 +246,11 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
 		
 		if (!this.world.isClient) {
 			if (null == this.getTarget() && !this.getWorld().getPlayers().isEmpty()) this.setTarget();
-			/*
-			if(this.age % 20 == 0) {
+			
+			if (this.age % 20 == 0) {
 				this.isInCage = this.isTrulyInCage();
 			}
-			*/
+			
 			
 			this.setPoseWhenIdle();
 			
@@ -396,6 +368,23 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
 		}
 	}
 	
+	private Optional<SCP096Cage> getCage() {
+		Optional<? extends Multiblock> optional = Multiblocks.get(this.getWorld()).getMultiblock(this.getBlockPos());
+		if (optional.isEmpty()) return Optional.empty();
+		
+		if ((optional.get() instanceof SCP096Cage cage)) return Optional.of(cage);
+		
+		return Optional.empty();
+	}
+	
+	private Float getSCPHealth() {
+		return this.dataTracker.get(SCPHealth);
+	}
+	
+	private void setSCPHealth(float newHealth) {
+		this.dataTracker.set(SCPHealth, newHealth);
+	}
+	
 	private SCP096Pose getSCP_Pose() {
 		return SCP096Pose.byId(this.dataTracker.get(SCP_POSE));
 	}
@@ -404,19 +393,10 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
 		this.dataTracker.set(SCP_POSE, pose.getId());
 	}
 	
-	private void setSCPHealth(float newHealth){
-		this.dataTracker.set(SCPHealth, newHealth);
-	}
-	
-	private Float getSCPHealth(){
-		return this.dataTracker.get(SCPHealth);
-	}
-	
 	private boolean isPlayerSeeing(PlayerEntity player) {
 		
 		Vec3d vec3d = player.getRotationVec(1.0F).normalize(); // Rotation fo the player between 0-1
 		Vec3d vec3d2 = new Vec3d(this.getX() - player.getX(), this.getEyeY() - player.getEyeY(), this.getZ() - player.getZ());  // Distance between player and 096 in blocks of each axis
-		double d = vec3d2.length(); // Distance between player and 096
 		vec3d2 = vec3d2.normalize();  // Distance between player and 096 in blocks of each axis between 0-1
 		double e = vec3d.dotProduct(vec3d2); // The closer to 1 this var is, the more the player is looking at 096
 		boolean b1 = e > 0.35 && player.canSee(this); // 1.0 - 0.025 / d_scp is modified for precision
@@ -424,12 +404,22 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
 		
 		Vec3d vec3DScp = this.getRotationVec(1.0F).normalize();
 		Vec3d vec3D2Scp = new Vec3d(player.getX() - this.getX(), player.getEyeY() - this.getEyeY(), player.getZ() - this.getZ());
-		double dScp = vec3D2Scp.length();
 		vec3D2Scp = vec3D2Scp.normalize();
 		double eScp = vec3DScp.dotProduct(vec3D2Scp);
 		boolean b2 = eScp > 0.05 && this.canSee(player);
 		
 		return b1 && b2;
+	}
+	
+	private boolean isTrulyInCage() {
+		Optional<? extends Multiblock> optional = Multiblocks.get(this.getWorld()).getMultiblock(this.getBlockPos());
+		if (optional.isEmpty()) return false;
+		
+		if (!(optional.get() instanceof SCP096Cage cage)) return false;
+		
+		Optional<Scp_096Entity> scp = cage.getScp();
+		return scp.isPresent() && scp.get().equals(this);
+		
 	}
 	
 	private boolean isWalking() {
@@ -440,7 +430,6 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
 		if (this.world.isClient()) return;
 		
 		ChunkPos pos = this.getChunkPos();
-		ServerWorld server = ((ServerWorld) this.getWorld());
 		Collection<ChunkPos> loadedChunks = new ArrayList<>();
 		for (int x = -1; x < 2; x++) {
 			for (int z = -1; z < 2; z++) {
@@ -487,7 +476,7 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
 	
 	private void regenerate() {
 		if (this.getSCPHealth() < this.getMaxHealth() && this.age % (Math.round(this.getSCPHealth()) + (Math.round(this.getSCPHealth()) == 0 ? 1 : 0)) == 0) {
-			this.setSCPHealth(this.getSCPHealth()+1);
+			this.setSCPHealth(this.getSCPHealth() + 1);
 		}
 	}
 	
@@ -524,13 +513,30 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
 	}
 	
 	private void stopAllSounds(WorldAccess world) {
-		
-		
 		this.playingSounds.clear();
 	}
 	
 	private void updateSpeed() {
 		this.scp096Speed = (this.getSCPHealth() / 100);
+	}
+	
+	public enum SCP096Pose {
+		NOT_MOVING(4), CHASING(3), GETTING_UP(1), RAGING(2), IDLING(0);
+		
+		private static final IntFunction<SCP096Pose> BY_ID = ValueLists.createIdToValueFunction(SCP096Pose::getId, values(), ValueLists.OutOfBoundsHandling.ZERO);
+		private final int id;
+		
+		SCP096Pose(int id) {
+			this.id = id;
+		}
+		
+		static SCP096Pose byId(int id) {
+			return BY_ID.apply(id);
+		}
+		
+		int getId() {
+			return this.id;
+		}
 	}
 	
 	private static class Navigation extends MobNavigation {
@@ -557,25 +563,6 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
 		@Override
 		public boolean isValidPosition(BlockPos pos) {
 			return !this.world.getFluidState(pos).isOf(Fluids.EMPTY) || super.isValidPosition(pos);
-		}
-	}
-	
-	public enum SCP096Pose {
-		NOT_MOVING(4), CHASING(3), GETTING_UP(1), RAGING(2), IDLING(0);
-	
-		private static final IntFunction<SCP096Pose> BY_ID = ValueLists.createIdToValueFunction(SCP096Pose::getId, values(), ValueLists.OutOfBoundsHandling.ZERO);
-		private final int id;
-	
-		SCP096Pose(int id) {
-			this.id = id;
-		}
-	
-		static SCP096Pose byId(int id) {
-			return BY_ID.apply(id);
-		}
-	
-		int getId() {
-			return this.id;
 		}
 	}
 }

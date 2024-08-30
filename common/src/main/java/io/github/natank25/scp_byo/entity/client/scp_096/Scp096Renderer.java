@@ -9,17 +9,17 @@ import net.minecraft.util.Identifier;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 public class Scp096Renderer extends GeoEntityRenderer<Scp_096Entity> {
-    public Scp096Renderer(EntityRendererFactory.Context renderManager) {
-        super(renderManager, new Scp096Model());
-    }
-
-    @Override
-    public Identifier getTextureLocation(Scp_096Entity animatable) {
-        return new Identifier(Scp_byo.MOD_ID, "textures/entity/scp_096.png");
-    }
-
-    @Override
-    public void render(Scp_096Entity entity, float entityYaw, float partialTick, MatrixStack poseStack, VertexConsumerProvider bufferSource, int packedLight) {
-        super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
-    }
+	public Scp096Renderer(EntityRendererFactory.Context renderManager) {
+		super(renderManager, new Scp096Model());
+	}
+	
+	@Override
+	public Identifier getTextureLocation(Scp_096Entity animatable) {
+		return new Identifier(Scp_byo.MOD_ID, "textures/entity/scp_096.png");
+	}
+	
+	@Override
+	public void render(Scp_096Entity entity, float entityYaw, float partialTick, MatrixStack poseStack, VertexConsumerProvider bufferSource, int packedLight) {
+		super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
+	}
 }

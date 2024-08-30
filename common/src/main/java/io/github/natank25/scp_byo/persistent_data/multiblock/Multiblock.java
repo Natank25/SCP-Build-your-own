@@ -1,9 +1,13 @@
 package io.github.natank25.scp_byo.persistent_data.multiblock;
 
+import io.github.natank25.scp_byo.Scp_byo;
 import io.github.natank25.scp_byo.utils.MathHelper;
+import io.github.natank25.scp_byo.utils.ModConstants;
+import io.netty.buffer.Unpooled;
 import net.minecraft.block.Block;
 import net.minecraft.block.pattern.BlockPattern;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.util.math.*;
@@ -14,8 +18,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
-    An instance of a BlockPattern in the world
+/**
+ * An instance of a BlockPattern in the world
  */
 public class Multiblock {
 	
@@ -23,7 +27,6 @@ public class Multiblock {
 	protected final World world;
 	protected final BlockPos centerBlockPos;
 	protected final BlockBox box;
-	private final BlockPattern pattern;
 	private final Direction forward;
 	private final Direction up;
 	private final BlockPos frontTopLeftPos;
@@ -38,8 +41,7 @@ public class Multiblock {
 	private ParticleEffect breakParticles = DustParticleEffect.DEFAULT;
 	private double particleOffset = 0.15;
 	
-	public Multiblock(BlockPattern pattern, @NotNull BlockPattern.Result result, World world) {
-		this.pattern = pattern;
+	public Multiblock(@NotNull BlockPattern.Result result, World world) {
 		this.forward = result.getForwards();
 		this.up = result.getUp();
 		this.width = result.getWidth();
@@ -63,55 +65,102 @@ public class Multiblock {
 		this.spawnOutlineParticles(this.spawnParticles);
 	}
 	
-	public Vec3d add(Vec3d origin, double offsetLeft, double offsetDown, double offsetForwards) {
+	
+	//region Update packets
+	
+	public final Vec3d add(Vec3d origin, double offsetLeft, double offsetDown, double offsetForwards) {
 		return MathHelper.add(origin, this.forward, this.up, offsetLeft, offsetDown, offsetForwards);
 	}
 	
+	public final void addParticle(ParticleEffect particle, BlockPos pos, Vec3d velocity) {
+		this.addParticle(particle, new Vec3d(pos.getX(), pos.getY(), pos.getZ()), velocity);
+	}
+	
+	public final void addParticle(ParticleEffect particle, Vec3d pos, Vec3d velocity) {
+		this.world.addParticle(particle, pos.x, pos.y, pos.z, velocity.x, velocity.y, velocity.z);
+	}
+	
+	//endregion
+	
+	//region Nbt
+	
+	public void applyGenericUpdatePacket(PacketByteBuf buf) {
+		Scp_byo.LOGGER.error("Method applyGenericUpdatePacket is not implemented yet");
+	}
 	
 	public void create() {
 	}
 	
-	public ParticleEffect getBreakParticles() {
+	//endregion
+	
+	//region Getters
+	
+	public void destroy() {
+		this.spawnOutlineParticles(this.breakParticles);
+	}
+	
+	public final BlockBox getBox() {
+		return this.box;
+	}
+	
+	public final ParticleEffect getBreakParticles() {
 		return this.breakParticles;
 	}
 	
-	public void setBreakParticles(ParticleEffect breakParticles) {
+	public final void setBreakParticles(ParticleEffect breakParticles) {
 		this.breakParticles = breakParticles;
 	}
 	
-	public BlockPos getCenterBlockPos() {
+	public final BlockPos getCenterBlockPos() {
 		return this.centerBlockPos;
 	}
 	
-	public int getDepth() {
+	@NotNull
+	public final List<Vec3d> getCorners() {
+		return MathHelper.getCorners(this.frontTopLeftVec, this.forward, this.up, this.width, this.height, this.depth);
+	}
+	
+	public final int getDepth() {
 		return this.depth;
 	}
 	
-	public Direction getForward() {
+	public final PacketByteBuf getEmptyUpdatePacket() {
+		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+		buf.writeRegistryKey(this.world.getRegistryKey());
+		buf.writeByte(ModConstants.Networking.Multiblocks.UPDATE_MULTIBLOCK);
+		buf.writeBlockPos(this.globalBottomLeftPos);
+		return buf;
+	}
+	
+	public final Direction getForward() {
 		return this.forward;
 	}
 	
-	public BlockPos getFrontTopLeftPos() {
+	public final BlockPos getFrontTopLeftPos() {
 		return this.frontTopLeftPos;
 	}
 	
-	public int[] getFrontTopLeftPosAsArray() {
+	public final int[] getFrontTopLeftPosAsArray() {
 		return new int[]{this.frontTopLeftPos.getX(), this.frontTopLeftPos.getY(), this.frontTopLeftPos.getZ()};
 	}
 	
-	public Vec3d getFrontTopLeftVec() {
+	public final Vec3d getFrontTopLeftVec() {
 		return this.frontTopLeftVec;
 	}
 	
-	public BlockPos getGlobalBottomLeftPos() {
+	public final BlockPos getGlobalBottomLeftPos() {
 		return this.globalBottomLeftPos;
 	}
 	
-	public Vec3d getGlobalBottomLeftVec() {
+	public final int[] getGlobalBottomLeftPosAsArray() {
+		return new int[]{this.globalBottomLeftPos.getX(), this.globalBottomLeftPos.getY(), this.globalBottomLeftPos.getZ()};
+	}
+	
+	public final Vec3d getGlobalBottomLeftVec() {
 		return this.globalBottomLeftVec;
 	}
 	
-	public int getHeight() {
+	public final int getHeight() {
 		return this.height;
 	}
 	
@@ -119,83 +168,13 @@ public class Multiblock {
 		return new NbtCompound();
 	}
 	
-	public Vec3d getOppositeVec() {
+	public final Vec3d getOppositeVec() {
 		return this.oppositeVec;
 	}
 	
-	public double getParticleOffset() {
-		return this.particleOffset;
-	}
-	
-	public void setParticleOffset(double particleOffset) {
-		this.particleOffset = particleOffset;
-	}
-	
-	public BlockPattern getPattern() {
-		return this.pattern;
-	}
-	
-	public VoxelShape getShape() {
-		return this.shape;
-	}
-	
-	public ParticleEffect getSpawnParticles() {
-		return this.spawnParticles;
-	}
-	
-	public void setSpawnParticles(ParticleEffect spawnParticles) {
-		this.spawnParticles = spawnParticles;
-	}
-	
-	public Direction getUp() {
-		return this.up;
-	}
-	
-	public int getWidth() {
-		return this.width;
-	}
-	
-	public World getWorld() {
-		return this.world;
-	}
-	
-	public void readFromNbt(NbtCompound nbt) {
-	
-	}
-	
-	public void tick() {
-	
-	}
-	
-	BlockBox getBox() {
-		return this.box;
-	}
-	
-	int[] getGlobalBottomLeftPosAsArray() {
-		return new int[]{this.globalBottomLeftPos.getX(), this.globalBottomLeftPos.getY(), this.globalBottomLeftPos.getZ()};
-	}
-	
-	protected void destroy() {
-		this.spawnOutlineParticles(this.breakParticles);
-	}
-	
-	private void addParticle(ParticleEffect particle, BlockPos pos, Vec3d velocity) {
-		this.world.addParticle(particle, pos.getX(), pos.getY(), pos.getZ(), velocity.x, velocity.y, velocity.z);
-	}
-	
-	private void addParticle(ParticleEffect particle, Vec3d pos, Vec3d velocity) {
-		this.world.addParticle(particle, pos.x, pos.y, pos.z, velocity.x, velocity.y, velocity.z);
-	}
-	
 	@NotNull
-	private List<Vec3d> getCorners() {
-		return MathHelper.getCorners(this.frontTopLeftVec, this.forward, this.up, this.width, this.height, this.depth);
-	}
-	
-	@NotNull
-	private List<Vec3d> getOutlinePos(double offset) {
+	public List<Vec3d> getOutlinePos(double offset) {
 		List<Vec3d> corners = this.getCorners();
-		
 		
 		List<Vec3d> particlesPos = new ArrayList<>(corners);
 		
@@ -223,15 +202,73 @@ public class Multiblock {
 		return particlesPos;
 	}
 	
-	private Vec3d getVecFromPos(BlockPos pos) {
+	public final double getParticleOffset() {
+		return this.particleOffset;
+	}
+	
+	public final void setParticleOffset(double particleOffset) {
+		this.particleOffset = particleOffset;
+	}
+	
+	public final VoxelShape getShape() {
+		return this.shape;
+	}
+	
+	public final ParticleEffect getSpawnParticles() {
+		return this.spawnParticles;
+	}
+	
+	//endregion
+	
+	//region Setters
+	
+	public final void setSpawnParticles(ParticleEffect spawnParticles) {
+		this.spawnParticles = spawnParticles;
+	}
+	
+	public final Direction getUp() {
+		return this.up;
+	}
+	
+	public final Vec3d getVecFromPos(BlockPos pos) {
 		return this.add(pos.toCenterPos(), -0.5, -0.5, -0.5);
 	}
 	
-	private void spawnOutlineParticles(ParticleEffect particle) {
-		var particlesPos = this.getOutlinePos(this.particleOffset);
+	//endregion
+	
+	//region Multiblock Management
+	
+	public final int getWidth() {
+		return this.width;
+	}
+	
+	public final World getWorld() {
+		return this.world;
+	}
+	
+	public void readFromNbt(NbtCompound nbt) {
+	
+	}
+	
+	//endregion
+	
+	public final void selfDisassemble() {
+		Multiblocks.get(this.world).tryDisassemble(this.globalBottomLeftPos);
+	}
+	
+	public final void sendGenericUpdatePacket(PacketByteBuf buf) {
+		Multiblocks.get(this.getWorld()).syncWithAllClients(buf);
+	}
+	
+	public final void spawnOutlineParticles(ParticleEffect particle) {
+		List<Vec3d> particlesPos = this.getOutlinePos(this.particleOffset);
 		
 		for (Vec3d particlePos : particlesPos) {
 			this.world.addParticle(particle, particlePos.x, particlePos.y, particlePos.z, 0, 0, 0);
 		}
+	}
+	
+	public void tick() {
+	
 	}
 }

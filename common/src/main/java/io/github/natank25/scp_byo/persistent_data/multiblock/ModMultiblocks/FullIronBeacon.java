@@ -6,8 +6,8 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 public class FullIronBeacon extends Multiblock {
-	public FullIronBeacon(BlockPattern pattern, BlockPattern.@NotNull Result result, World world) {
-		super(pattern, result, world);
+	public FullIronBeacon(BlockPattern.@NotNull Result result, World world) {
+		super(result, world);
 	}
 	
 }

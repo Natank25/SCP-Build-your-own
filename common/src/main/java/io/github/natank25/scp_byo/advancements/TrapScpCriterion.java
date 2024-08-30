@@ -16,9 +16,14 @@ import net.minecraft.util.Identifier;
 public class TrapScpCriterion extends AbstractCriterion<TrapScpCriterion.Conditions> {
 	
 	static final Identifier ID = Utils.newIdentifier("trap_scp");
+	
 	@Override
 	public Identifier getId() {
 		return ID;
+	}
+	
+	public void trigger(ServerPlayerEntity player, EntityType<? extends ScpEntity> scpType) {
+		this.trigger(player, conditions -> conditions.requirementMet(scpType));
 	}
 	
 	@Override
@@ -26,11 +31,6 @@ public class TrapScpCriterion extends AbstractCriterion<TrapScpCriterion.Conditi
 		EntityType<? extends ScpEntity> scpType = (EntityType<? extends ScpEntity>) Registries.ENTITY_TYPE.get(new Identifier(obj.get("scp_type").getAsString()));
 		return new Conditions(scpType);
 	}
-	
-	public void trigger(ServerPlayerEntity player,EntityType<? extends ScpEntity> scpType){
-		this.trigger(player, conditions -> conditions.requirementMet(scpType));
-	}
-	
 	
 	public static class Conditions extends AbstractCriterionConditions {
 		final EntityType<? extends ScpEntity> scpType;
@@ -41,15 +41,15 @@ public class TrapScpCriterion extends AbstractCriterion<TrapScpCriterion.Conditi
 			this.scpType = scpType;
 		}
 		
-		boolean requirementMet(EntityType<? extends ScpEntity> scpType){
-			return this.scpType == scpType;
-		}
-		
 		@Override
 		public JsonObject toJson(AdvancementEntityPredicateSerializer predicateSerializer) {
 			JsonObject json = super.toJson(predicateSerializer);
 			json.addProperty("scp_type", Registries.ENTITY_TYPE.getId(this.scpType).toString());
 			return json;
+		}
+		
+		boolean requirementMet(EntityType<? extends ScpEntity> scpType) {
+			return this.scpType == scpType;
 		}
 	}
 }

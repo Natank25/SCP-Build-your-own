@@ -4,19 +4,19 @@ import net.minecraft.util.StringIdentifiable;
 import org.jetbrains.annotations.NotNull;
 
 public enum BlockPlace implements StringIdentifiable {
-    UPPER, LOWER, BETWEEN;
-
-    public String toString() {
-        return this.asString();
-    }
-
-    @Override
-    public @NotNull String asString() {
+	UPPER, LOWER, BETWEEN;
+	
+	@Override
+	public @NotNull String asString() {
 		return switch (this) {
 			case UPPER -> "upper";
 			case LOWER -> "lower";
 			case BETWEEN -> "between";
 		};
 	}
-
+	
+	public String toString() {
+		return this.asString();
+	}
+	
 }

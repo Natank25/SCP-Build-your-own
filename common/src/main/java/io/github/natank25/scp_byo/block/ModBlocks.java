@@ -1,5 +1,6 @@
 package io.github.natank25.scp_byo.block;
 
+import dev.architectury.registry.client.rendering.RenderTypeRegistry;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
 import io.github.natank25.scp_byo.Scp_byo;
@@ -11,12 +12,12 @@ import io.github.natank25.scp_byo.item.ModItems;
 import io.github.natank25.scp_byo.sounds.ModSounds;
 import io.github.natank25.scp_byo.utils.Utils;
 import net.minecraft.block.*;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.sound.BlockSoundGroup;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockView;
 
@@ -39,7 +40,7 @@ public enum ModBlocks {
 	//region Custom Blocks
 	public static final RegistrySupplier<Block> KEYCARD_READER = registerBlock("keycard_reader", () -> new KeycardReaderBlock(AbstractBlock.Settings.of(Material.METAL).strength(5, 1200).requiresTool()));
 	public static final RegistrySupplier<Block> ELEVATOR_WALL = registerBlock("elevator_wall", () -> new ElevatorWallBlock(AbstractBlock.Settings.of(Material.STONE).strength(5, 1200).requiresTool()));
-	public static final RegistrySupplier<Block> SLIDING_DOOR = registerBlockWithoutItem("sliding_door", () -> new SlidingDoor(AbstractBlock.Settings.of(Material.METAL).strength(5, 1200).requiresTool().nonOpaque(), ModSounds.SLIDING_DOOR_OPEN.get(),ModSounds.SLIDING_DOOR_OPEN.get()));
+	public static final RegistrySupplier<Block> SLIDING_DOOR = registerBlockWithoutItem("sliding_door", () -> new SlidingDoor(AbstractBlock.Settings.of(Material.METAL).strength(5, 1200).requiresTool().nonOpaque(), ModSounds.SLIDING_DOOR_OPEN.get(), ModSounds.SLIDING_DOOR_OPEN.get()));
 	
 	//region Extendable Blocks
 	public static final RegistrySupplier<Block> WHITE_WALL = registerBlock("white_wall", () -> new ExtendableBlock(AbstractBlock.Settings.of(Material.STONE).strength(5, 1200).requiresTool(), 10));
@@ -68,7 +69,7 @@ public enum ModBlocks {
 		return toReturn;
 	}
 	
-	public static <T extends Block> RegistrySupplier<Item> registerBlockItem(String name, RegistrySupplier<T> block){
+	public static <T extends Block> RegistrySupplier<Item> registerBlockItem(String name, RegistrySupplier<T> block) {
 		return ModItems.ITEMS.register(Utils.newIdentifier(name), () -> new BlockItem(block.get(), ModItems.defaultSettings()));
 	}
 	
@@ -77,8 +78,11 @@ public enum ModBlocks {
 	}
 	
 	
-	
 	public static void registerModBlocks() {
 		BLOCKS.register();
+	}
+	
+	public static void registerTranslucentBlocks() {
+		RenderTypeRegistry.register(RenderLayer.getTranslucent(), FONDATION_GLASS.get());
 	}
 }

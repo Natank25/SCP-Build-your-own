@@ -24,28 +24,29 @@ import java.util.Optional;
 
 @Mixin(WorldRenderer.class)
 public abstract class WorldRendererMixin {
-
-    @Shadow private @Nullable ClientWorld world;
-
-    @Shadow
-    private static void drawCuboidShapeOutline(MatrixStack matrices, VertexConsumer vertexConsumer, VoxelShape shape, double offsetX, double offsetY, double offsetZ, float red, float green, float blue, float alpha) {
-    }
-
-    @Inject(method="drawBlockOutline", at=@At("HEAD"), cancellable = true)
-    private void drawBlockOutlineMixin(MatrixStack matrices, VertexConsumer vertexConsumer, Entity entity, double cameraX, double cameraY, double cameraZ, BlockPos pos, BlockState state, CallbackInfo ci) {
-        Optional<? extends Multiblock> optionalMultiblock = ((World) world).scp_byoGetDataManager().getMultiblocks().getMultiblock(pos);
-        if (optionalMultiblock.isPresent()) {
-            Multiblock multiblock = optionalMultiblock.get();
-            drawCuboidShapeOutline(
-                    matrices,
-                    vertexConsumer,
-                    multiblock.getShape(),
-                    multiblock.getGlobalBottomLeftVec().getX() - cameraX,
-                    multiblock.getGlobalBottomLeftVec().getY() - cameraY,
-                    multiblock.getGlobalBottomLeftVec().getZ() - cameraZ,
-                    0.0F, 0.0F, 0.0F, 0.4F
-            );
-            ci.cancel();
-        }
-    }
+	
+	@Shadow
+	private @Nullable ClientWorld world;
+	
+	@Shadow
+	private static void drawCuboidShapeOutline(MatrixStack matrices, VertexConsumer vertexConsumer, VoxelShape shape, double offsetX, double offsetY, double offsetZ, float red, float green, float blue, float alpha) {
+	}
+	
+	@Inject(method = "drawBlockOutline", at = @At("HEAD"), cancellable = true)
+	private void drawBlockOutlineMixin(MatrixStack matrices, VertexConsumer vertexConsumer, Entity entity, double cameraX, double cameraY, double cameraZ, BlockPos pos, BlockState state, CallbackInfo ci) {
+		Optional<? extends Multiblock> optionalMultiblock = ((World) world).scp_byoGetDataManager().getMultiblocks().getMultiblock(pos);
+		if (optionalMultiblock.isPresent()) {
+			Multiblock multiblock = optionalMultiblock.get();
+			drawCuboidShapeOutline(
+					matrices,
+					vertexConsumer,
+					multiblock.getShape(),
+					multiblock.getGlobalBottomLeftVec().getX() - cameraX,
+					multiblock.getGlobalBottomLeftVec().getY() - cameraY,
+					multiblock.getGlobalBottomLeftVec().getZ() - cameraZ,
+					0.0F, 0.0F, 0.0F, 0.4F
+			);
+			ci.cancel();
+		}
+	}
 }

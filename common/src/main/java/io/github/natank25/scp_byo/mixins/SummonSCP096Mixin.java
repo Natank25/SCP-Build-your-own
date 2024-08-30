@@ -20,22 +20,20 @@ import java.util.Objects;
 
 @Mixin(SummonCommand.class)
 class SummonSCP096Mixin {
-
-
-    @Inject(method = "execute", at = @At("HEAD"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
-    private static void injectSummonSCP096Command(ServerCommandSource source, RegistryEntry.Reference<EntityType<?>> entityType, Vec3d pos, NbtCompound nbt, boolean initialize, CallbackInfoReturnable<Integer> cir) {
-
-        if (entityType == ModEntities.SCP_096 && initialize) {
-            DoesSCP096Exist doesSCP096Exist = ((World) source.getWorld()).scp_byoGetDataManager().getDoesSCP096Exists();
-
-            if (doesSCP096Exist.doesSCP096Exists) {
-                Objects.requireNonNull(source.getPlayer()).sendMessage(Text.translatable("scp_byo.commands.summonscp096.alreadyexists"));
-
-                cir.setReturnValue(1);
-            } else {
-                doesSCP096Exist.doesSCP096Exists = true;
-            }
-
-        }
-    }
+	
+	
+	@Inject(method = "execute", at = @At("HEAD"), cancellable = true)
+	private static void injectSummonSCP096Command(ServerCommandSource source, RegistryEntry.Reference<EntityType<?>> entityType, Vec3d pos, NbtCompound nbt, boolean initialize, CallbackInfoReturnable<Integer> cir) {
+		
+		if (ModEntities.SCP_096.getId() == entityType.value().arch$registryName() && initialize) {
+			DoesSCP096Exist doesSCP096Exist = ((World) source.getWorld()).scp_byoGetDataManager().getDoesSCP096Exists();
+			
+			if (doesSCP096Exist.getDoesSCP096Exist()) {
+				Objects.requireNonNull(source.getPlayer()).sendMessage(Text.translatable("scp_byo.commands.summonscp096.alreadyexists"));
+				
+				cir.setReturnValue(1);
+			}
+			
+		}
+	}
 }

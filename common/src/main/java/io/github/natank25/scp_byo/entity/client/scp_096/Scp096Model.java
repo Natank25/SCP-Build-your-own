@@ -6,19 +6,19 @@ import net.minecraft.util.Identifier;
 import software.bernie.geckolib.model.GeoModel;
 
 class Scp096Model extends GeoModel<Scp_096Entity> {
-    @Override
-    public Identifier getModelResource(Scp_096Entity animatable) {
-        return new Identifier(Scp_byo.MOD_ID, "geo/scp_096.geo.json");
-    }
-
-    @Override
-    public Identifier getTextureResource(Scp_096Entity animatable) {
-        return new Identifier(Scp_byo.MOD_ID, "textures/entity/scp_096.png");
-    }
-
-    @Override
-    public Identifier getAnimationResource(Scp_096Entity animatable) {
-        return new Identifier(Scp_byo.MOD_ID, "animations/scp_096.animation.json");
-    }
-
+	@Override
+	public Identifier getAnimationResource(Scp_096Entity animatable) {
+		return new Identifier(Scp_byo.MOD_ID, "animations/scp_096.animation.json");
+	}
+	
+	@Override
+	public Identifier getModelResource(Scp_096Entity animatable) {
+		return new Identifier(Scp_byo.MOD_ID, "geo/scp_096.geo.json");
+	}
+	
+	@Override
+	public Identifier getTextureResource(Scp_096Entity animatable) {
+		return new Identifier(Scp_byo.MOD_ID, "textures/entity/scp_096.png");
+	}
+	
 }

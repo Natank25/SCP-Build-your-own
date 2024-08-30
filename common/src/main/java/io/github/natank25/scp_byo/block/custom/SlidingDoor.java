@@ -1,6 +1,5 @@
 package io.github.natank25.scp_byo.block.custom;
 
-import io.github.natank25.scp_byo.block.ModBlocks;
 import io.github.natank25.scp_byo.block.entity.ModBlocksEntities;
 import io.github.natank25.scp_byo.block.entity.SlidingDoorBlockEntity;
 import net.minecraft.block.*;
@@ -10,6 +9,7 @@ import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.pathing.NavigationType;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.sound.SoundCategory;
@@ -27,6 +27,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
@@ -48,7 +49,6 @@ public class SlidingDoor extends BlockWithEntity {
 	private static final VoxelShape WEST_OPEN_SHAPE;
 	private static final VoxelShape SOUTH_OPEN_SHAPE;
 	//endregion
-	
 	
 	
 	static {
@@ -79,10 +79,7 @@ public class SlidingDoor extends BlockWithEntity {
 	
 	@Override
 	public boolean canPathfindThrough(BlockState state, BlockView world, BlockPos pos, NavigationType type) {
-		return switch (type) {
-			case WATER -> false;
-			case LAND, AIR -> state.get(OPEN);
-		};
+		return state.get(OPEN);
 	}
 	
 	@Override
@@ -138,16 +135,16 @@ public class SlidingDoor extends BlockWithEntity {
 	
 	@Nullable
 	public BlockState getPlacementState(ItemPlacementContext ctx) {
-		BlockState blockState;
+		BlockPos blockPos = ctx.getBlockPos();
+		World world = ctx.getWorld();
 		
 		if (ctx.getWorld().getBlockState(ctx.getBlockPos().down()) == Blocks.AIR.getDefaultState()) return null;
+		if (blockPos.getY() >= world.getTopY() - 1) return null;
+		if (!world.getBlockState(blockPos.up()).canReplace(ctx)) return null;
 		
-		if (ctx.getWorld().isReceivingRedstonePower(ctx.getBlockPos()))
-			blockState = this.getDefaultState().with(FACING, ctx.getHorizontalPlayerFacing().getOpposite()).with(POWERED, true).with(OPEN, true).with(HALF, DoubleBlockHalf.LOWER);
-		else
-			blockState = this.getDefaultState().with(FACING, ctx.getHorizontalPlayerFacing().getOpposite()).with(POWERED, false).with(OPEN, false).with(HALF, DoubleBlockHalf.LOWER);
+		boolean powered = world.isReceivingRedstonePower(blockPos) || world.isReceivingRedstonePower(blockPos.up());
 		
-		return blockState.canPlaceAt(ctx.getWorld(), ctx.getBlockPos()) ? blockState : null;
+		return this.getDefaultState().with(FACING, this.getFacing(ctx)).with(POWERED, powered).with(OPEN, powered).with(HALF, DoubleBlockHalf.LOWER);
 	}
 	
 	@Override
@@ -155,37 +152,29 @@ public class SlidingDoor extends BlockWithEntity {
 		return BlockRenderType.ENTITYBLOCK_ANIMATED;
 	}
 	
-	
 	@Override
 	public long getRenderingSeed(BlockState state, BlockPos pos) {
 		return MathHelper.hashCode(pos.getX(), pos.down(state.get(HALF) == DoubleBlockHalf.LOWER ? 0 : 1).getY(), pos.getZ());
 	}
 	
-	
 	@Override
 	public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
-
-		DoubleBlockHalf half = state.get(HALF);
-		if (direction.getAxis() == Direction.Axis.Y && half == DoubleBlockHalf.LOWER && (direction == Direction.UP)) {
-			// Si on est le bloc du bas et que l'update viens de dessus
-			if (neighborState.isOf(this) && neighborState.get(HALF) == DoubleBlockHalf.UPPER)
-				// Si l'autre bloc est une porte et que c'est le haut
-				return state.with(FACING, neighborState.get(FACING)).with(OPEN, neighborState.get(OPEN)).with(POWERED, neighborState.get(POWERED)); // TODO: remove with(FACING [...]= bc its useless (to test)
-				// Alors Renvoie le state de nous mais avec l'ouverture de l'autre
+		
+		
+		DoubleBlockHalf doubleBlockHalf = state.get(HALF);
+		if (direction.getAxis() == Direction.Axis.Y && doubleBlockHalf == DoubleBlockHalf.LOWER == (direction == Direction.UP)) { // If vertical update and update direction is up when lower half and down when upper half
+			if (neighborState.isOf(this) && neighborState.get(HALF) != doubleBlockHalf) { // If neighbor is other half
+				return state.with(FACING, neighborState.get(FACING)).with(OPEN, neighborState.get(OPEN)).with(POWERED, neighborState.get(POWERED));
+			}
 			return Blocks.AIR.getDefaultState();
-				// Sinon revoie de l'air car cela veut dire que l'autre a été cassé
-		} else {
-			// Sinon (si on est le block du haut OU que l'update viens d'autre part)
-			if (half == DoubleBlockHalf.LOWER && direction == Direction.DOWN && !state.canPlaceAt(world, pos))
-				// Si on est le block du bas, que l'update viens du bas et qu'on ne peut pas etre placé là ou on est
-				return Blocks.AIR.getDefaultState();
-				// Alors Renvoie de l'air car cela veut dire que le bloc en dessous de nous à été cassé
-			return super.getStateForNeighborUpdate(state, direction, neighborState, world, pos, neighborPos);
-				// Sinon renvoie le state de nous
 		}
+		if (neighborState.isOf(this) && direction.getAxis().isHorizontal() && neighborState.get(HALF) == state.get(HALF) && neighborState.get(FACING).getOpposite() == state.get(FACING)) {
+			this.setOpen(state, (World) world, pos, neighborState.get(OPEN), false);
+			return state.with(OPEN, neighborState.get(OPEN)).with(POWERED, neighborState.get(POWERED));
+		}
+		
+		return doubleBlockHalf == DoubleBlockHalf.LOWER && direction == Direction.DOWN && !state.canPlaceAt(world, pos) ? Blocks.AIR.getDefaultState() : super.getStateForNeighborUpdate(state, direction, neighborState, world, pos, neighborPos);
 	}
-	
-	
 	
 	@Override
 	public BlockState mirror(BlockState state, BlockMirror mirror) {
@@ -194,33 +183,30 @@ public class SlidingDoor extends BlockWithEntity {
 	
 	@Override
 	public void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
-		if (world.getBlockState(sourcePos).getBlock() == ModBlocks.SLIDING_DOOR.get() || ModBlocks.SLIDING_DOOR.get() == sourceBlock) {
-			return;
-		}
-		if (world.getBlockState(pos.down()) == Blocks.AIR.getDefaultState() && world.getBlockState(pos).get(HALF) == DoubleBlockHalf.LOWER) {
-			world.breakBlock(pos, true);
-			world.breakBlock(pos.up(), false);
-			return;
-		} else if (world.getBlockState(pos.down()) == Blocks.AIR.getDefaultState() && world.getBlockState(pos).get(HALF) == DoubleBlockHalf.UPPER) {
-			world.breakBlock(pos, false);
-			world.breakBlock(pos.down(), true);
-			return;
-		}
 		
-		boolean open = world.isReceivingRedstonePower(pos) || world.isReceivingRedstonePower(pos.offset(state.get(HALF) == DoubleBlockHalf.LOWER ? Direction.UP : Direction.DOWN));
-		
-		if (!this.getDefaultState().isOf(sourceBlock) && open != state.get(POWERED)) {
-			this.setOpen(state, world, pos, open);
+		boolean open = world.isReceivingRedstonePower(pos) || world.isReceivingRedstonePower(pos.offset(state.get(HALF) == DoubleBlockHalf.LOWER ? Direction.UP : Direction.DOWN)) || world.isReceivingRedstonePower(pos.offset(state.get(FACING).rotateYCounterclockwise()));
+		if (open != state.get(POWERED)) { // !this.getDefaultState().isOf(sourceBlock) &&
+			this.setOpen(state, world, pos, open, true);
 		}
 	}
 	
 	//region Door Methods
 	@Override
 	public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+		if (!world.isClient && player.isCreative()) {
+			DoubleBlockHalf doubleBlockHalf = state.get(HALF);
+			if (doubleBlockHalf == DoubleBlockHalf.UPPER) {
+				BlockPos blockPos = pos.down();
+				BlockState blockState = world.getBlockState(blockPos);
+				if (blockState.isOf(state.getBlock()) && blockState.get(HALF) == DoubleBlockHalf.LOWER) {
+					BlockState blockState2 = blockState.getFluidState().isOf(Fluids.WATER) ? Blocks.WATER.getDefaultState() : Blocks.AIR.getDefaultState();
+					world.setBlockState(blockPos, blockState2, 35);
+					world.syncWorldEvent(player, 2001, blockPos, Block.getRawIdFromState(blockState));
+				}
+			}
+		}
+		
 		super.onBreak(world, pos, state, player);
-		BlockPos otherPos = state.get(HALF) == DoubleBlockHalf.LOWER ? pos.up() : pos.down();
-		world.setBlockState(otherPos, Blocks.AIR.getDefaultState(), 3);
-		super.onBreak(world, otherPos, state, player);
 		
 	}
 	
@@ -245,11 +231,50 @@ public class SlidingDoor extends BlockWithEntity {
 		builder.add(HALF, FACING, OPEN, POWERED);
 	}
 	
+	private Direction getFacing(ItemPlacementContext ctx) {
+		BlockView world = ctx.getWorld();
+		BlockPos blockPos = ctx.getBlockPos();
+		Direction direction = ctx.getHorizontalPlayerFacing();
+		BlockPos upPos = blockPos.up();
+		Direction directionCCW = direction.rotateYCounterclockwise();
+		BlockPos blockPosCCW = blockPos.offset(directionCCW);
+		BlockState blockStateCCW = world.getBlockState(blockPosCCW);
+		BlockPos upBlockPosCCW = upPos.offset(directionCCW);
+		BlockState upBlockStateCCW = world.getBlockState(upBlockPosCCW);
+		Direction directionCW = direction.rotateYClockwise();
+		BlockPos blockPosCW = blockPos.offset(directionCW);
+		BlockState blockStateCW = world.getBlockState(blockPosCW);
+		BlockPos upBlockPosCW = upPos.offset(directionCW);
+		BlockState upBlockStateCW = world.getBlockState(upBlockPosCW);
+		int sidePriority = (blockStateCCW.isFullCube(world, blockPosCCW) ? -1 : 0) + (upBlockStateCCW.isFullCube(world, upBlockPosCCW) ? -1 : 0) + (blockStateCW.isFullCube(world, blockPosCW) ? 1 : 0) + (upBlockStateCW.isFullCube(world, upBlockPosCW) ? 1 : 0);
+		boolean isCCWLower = blockStateCCW.isOf(this) && blockStateCCW.get(HALF) == DoubleBlockHalf.LOWER;
+		boolean isCWLower = blockStateCW.isOf(this) && blockStateCW.get(HALF) == DoubleBlockHalf.LOWER;
+		if ((isCCWLower && !isCWLower) || sidePriority > 0) {
+			return direction;
+		}
+		
+		if ((isCWLower && !isCCWLower) || sidePriority != 0) {
+			return direction.getOpposite();
+		}
+		
+		int xDirection = direction.getOffsetX();
+		int zDirection = direction.getOffsetZ();
+		Vec3d hitPos = ctx.getHitPos();
+		double xDistFromCenter = hitPos.x - (double) blockPos.getX();
+		double zDistFromCenter = hitPos.z - (double) blockPos.getZ();
+		return (xDirection >= 0 || !(zDistFromCenter < 0.5))
+				&& (xDirection <= 0 || !(zDistFromCenter > 0.5))
+				&& (zDirection >= 0 || !(xDistFromCenter > 0.5))
+				&& (zDirection <= 0 || !(xDistFromCenter < 0.5)) ? direction.getOpposite() : direction;
+		
+		
+	}
+	
 	private void playOpenCloseSound(WorldAccess world, BlockPos pos, boolean open) {
 		world.playSound(null, pos, open ? this.openSound : this.closeSound, SoundCategory.BLOCKS, 1.0F, world.getRandom().nextFloat() * 0.1F + 0.9F);
 	}
 	
-	private void setOpen(BlockState state, World world, BlockPos pos, boolean open) {
+	private void setOpen(BlockState state, World world, BlockPos pos, boolean open, boolean playsound) {
 		BlockState newState = state.with(POWERED, open).with(OPEN, open);
 		world.setBlockState(pos, newState, 2);
 		
@@ -257,11 +282,10 @@ public class SlidingDoor extends BlockWithEntity {
 		BlockPos otherPos = lower ? pos.up() : pos.down();
 		
 		world.setBlockState(otherPos, newState.with(HALF, lower ? DoubleBlockHalf.UPPER : DoubleBlockHalf.LOWER), 2);
+		if (playsound) this.playOpenCloseSound(world, pos, open);
 		
-		this.playOpenCloseSound(world, pos, open);
-		
-		world.getBlockEntity(pos, ModBlocksEntities.SLIDING_DOOR_BLOCK_ENTITY.get()).orElseGet(null).setOpen(open);
-		world.getBlockEntity(otherPos, ModBlocksEntities.SLIDING_DOOR_BLOCK_ENTITY.get()).orElseGet(null).setOpen(open);
+		world.getBlockEntity(pos, ModBlocksEntities.SLIDING_DOOR_BLOCK_ENTITY.get()).orElseThrow().setOpen(open);
+		world.getBlockEntity(otherPos, ModBlocksEntities.SLIDING_DOOR_BLOCK_ENTITY.get()).orElseThrow().setOpen(open);
 	}
 	//endregion
 	

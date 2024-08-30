@@ -7,21 +7,21 @@ import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 
 public class ElevatorWallBlock extends Block {
-
-    public static final BooleanProperty STICKY = BooleanProperty.of("sticky");
-
-    public ElevatorWallBlock(Settings settings) {
-        super(settings);
-        this.setDefaultState(this.getDefaultState().with(STICKY, false));
-    }
-
-    @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(STICKY);
-    }
-
-    @Override
-    public PistonBehavior getPistonBehavior(BlockState state) {
-        return state.get(STICKY) ? PistonBehavior.NORMAL : PistonBehavior.PUSH_ONLY;
-    }
+	
+	public static final BooleanProperty STICKY = BooleanProperty.of("sticky");
+	
+	public ElevatorWallBlock(Settings settings) {
+		super(settings);
+		this.setDefaultState(this.getDefaultState().with(STICKY, false));
+	}
+	
+	@Override
+	public PistonBehavior getPistonBehavior(BlockState state) {
+		return state.get(STICKY) ? PistonBehavior.NORMAL : PistonBehavior.PUSH_ONLY;
+	}
+	
+	@Override
+	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+		builder.add(STICKY);
+	}
 }
