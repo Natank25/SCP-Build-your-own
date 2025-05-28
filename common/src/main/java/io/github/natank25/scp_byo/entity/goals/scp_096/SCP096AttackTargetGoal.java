@@ -86,33 +86,32 @@ public class SCP096AttackTargetGoal extends Goal {
 	@Override
 	public void tick() {
 		LivingEntity target = this.scp096.getTarget();
-		if (null != target) {
-			this.scp096.setSCP_Pose(this.scp096.getNavigation().isIdle() || this.scp096.getVelocity().length() < 0.1 ? Scp_096Entity.SCP096Pose.NOT_MOVING : Scp_096Entity.SCP096Pose.CHASING);
-			this.scp096.getLookControl().lookAt(target, 30.0F, 30.0F);
-			double d = this.scp096.getSquaredDistanceToAttackPosOf(target);
-			this.updateCountdownTicks = Math.max(this.updateCountdownTicks - 1, 0);
-			//noinspection OverlyComplexBooleanExpression
-			if (this.scp096.getVisibilityCache().canSee(target) && this.updateCountdownTicks <= 0 && (this.targetX == 0.0 && this.targetY == 0.0 && this.targetZ == 0.0 || target.squaredDistanceTo(this.targetX, this.targetY, this.targetZ) >= 1.0 || this.scp096.getRandom().nextFloat() < 0.05F)) {
-				this.targetX = target.getX();
-				this.targetY = target.getY();
-				this.targetZ = target.getZ();
-				this.updateCountdownTicks = 4 + this.scp096.getRandom().nextInt(7);
-				if (d > 1024.0) {
-					this.updateCountdownTicks += 10;
-				} else if (d > 256.0) {
-					this.updateCountdownTicks += 5;
-				}
-				
-				if (!this.scp096.getNavigation().startMovingTo(target, this.scp096.scp096Speed)) {
-					this.updateCountdownTicks += 15;
-				}
-				
-				this.updateCountdownTicks = this.getTickCount(this.updateCountdownTicks);
-			}
-			
-			this.attack((PlayerEntity) target, d);
-		}
-	}
+        if (null == target) return;
+        this.scp096.setSCP_Pose(this.scp096.getNavigation().isIdle() || this.scp096.getVelocity().length() < 0.1 ? Scp_096Entity.SCP096Pose.NOT_MOVING : Scp_096Entity.SCP096Pose.CHASING);
+        this.scp096.getLookControl().lookAt(target, 30.0F, 30.0F);
+        double d = this.scp096.getSquaredDistanceToAttackPosOf(target);
+        this.updateCountdownTicks = Math.max(this.updateCountdownTicks - 1, 0);
+        //noinspection OverlyComplexBooleanExpression
+        if (this.scp096.getVisibilityCache().canSee(target) && this.updateCountdownTicks <= 0 && (this.targetX == 0.0 && this.targetY == 0.0 && this.targetZ == 0.0 || target.squaredDistanceTo(this.targetX, this.targetY, this.targetZ) >= 1.0 || this.scp096.getRandom().nextFloat() < 0.05F)) {
+            this.targetX = target.getX();
+            this.targetY = target.getY();
+            this.targetZ = target.getZ();
+            this.updateCountdownTicks = 4 + this.scp096.getRandom().nextInt(7);
+            if (d > 1024.0) {
+                this.updateCountdownTicks += 10;
+            } else if (d > 256.0) {
+                this.updateCountdownTicks += 5;
+            }
+
+            if (!this.scp096.getNavigation().startMovingTo(target, this.scp096.scp096Speed)) {
+                this.updateCountdownTicks += 15;
+            }
+
+            this.updateCountdownTicks = this.getTickCount(this.updateCountdownTicks);
+        }
+
+        this.attack((PlayerEntity) target, d);
+    }
 	
 	private void attack(PlayerEntity target, double squaredDistance) {
 		if (this.killed) return;

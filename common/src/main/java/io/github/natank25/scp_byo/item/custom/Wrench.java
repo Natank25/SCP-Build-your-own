@@ -2,12 +2,10 @@ package io.github.natank25.scp_byo.item.custom;
 
 import io.github.natank25.scp_byo.block.custom.ElevatorWallBlock;
 import io.github.natank25.scp_byo.block.custom.ExtendableBlock;
-import io.github.natank25.scp_byo.persistent_data.DoesSCP096Exist;
-import io.github.natank25.scp_byo.persistent_data.multiblock.ModMultiblocks.SCP096Cage;
+import io.github.natank25.scp_byo.persistent_data.multiblock.multiblocks.SCP096Cage;
 import io.github.natank25.scp_byo.persistent_data.multiblock.Multiblock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemUsageContext;

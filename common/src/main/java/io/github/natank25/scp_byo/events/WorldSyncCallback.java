@@ -9,7 +9,7 @@ public interface WorldSyncCallback {
 	Event<WorldSyncCallback> EVENT = EventFactory.createLoop();
 	
 	/**
-	 * Called when a player starts tracking a world (eg. by joining it).
+	 * Called when a player starts tracking a world (e.g. by joining it).
 	 */
 	void onPlayerStartTracking(ServerPlayerEntity player, ServerWorld world);
 }

@@ -24,6 +24,7 @@ public class Multiblocks extends PersistentState {
 	private final List<Multiblock> ingame_multiblocks = new ArrayList<>();
 	private final List<Multiblock> toRemoveMultiblocks = new ArrayList<>(); // Will maybe cause a bug if server stop on remove
 	private final World world;
+	static private final String WORLD_NOT_SERVER_ERR = "World cannot be client";
 	
 	public Multiblocks(World world) {
 		this.world = world;
@@ -128,28 +129,20 @@ public class Multiblocks extends PersistentState {
 	
 	public void syncWithAllClients(PacketByteBuf buf) {
 		if (this.world.isClient) {
-			Scp_byo.LOGGER.error("world cannot be client");
+			Scp_byo.LOGGER.error(WORLD_NOT_SERVER_ERR);
 			return;
 		}
-		//noinspection DataFlowIssue
-		this.syncWithClients(this.world.getServer().getPlayerManager().getPlayerList(), buf);
+		if (this.world.getServer() != null)
+			this.syncWithClients(this.world.getServer().getPlayerManager().getPlayerList(), buf);
 	}
-	
-	public void syncWithClient(ServerPlayerEntity player, PacketByteBuf buf) {
-		if (this.world.isClient) {
-			Scp_byo.LOGGER.error("world cannot be client");
-			return;
-		}
-		NetworkManager.sendToPlayer(player, ModConstants.Networking.MULTIBLOCK_UPDATE_PACKET_ID, buf);
-	}
-	
+
 	//endregion
 	
 	//region Getters
 	
 	public void syncWithClients(Iterable<ServerPlayerEntity> players, PacketByteBuf buf) {
 		if (this.world.isClient) {
-			Scp_byo.LOGGER.error("world cannot be client");
+			Scp_byo.LOGGER.error(WORLD_NOT_SERVER_ERR);
 			return;
 		}
 		NetworkManager.sendToPlayers(players, ModConstants.Networking.MULTIBLOCK_UPDATE_PACKET_ID, buf);

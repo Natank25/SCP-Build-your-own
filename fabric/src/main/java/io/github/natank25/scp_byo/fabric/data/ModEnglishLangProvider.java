@@ -48,7 +48,7 @@ public class ModEnglishLangProvider extends FabricLanguageProvider {
 
         // Load an existing language file. for sounds
         try {
-            Path existingFilePath = this.dataOutput.getModContainer().findPath("assets/scp_byo/lang/en_us.existing.json").get();
+            Path existingFilePath = this.dataOutput.getModContainer().findPath("assets/scp_byo/lang/en_us.existing.json").orElseThrow();
             translationBuilder.add(existingFilePath);
         } catch (IOException e) {
             throw new RuntimeException(e);

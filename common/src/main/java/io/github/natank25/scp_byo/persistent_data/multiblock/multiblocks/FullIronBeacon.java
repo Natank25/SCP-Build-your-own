@@ -1,4 +1,4 @@
-package io.github.natank25.scp_byo.persistent_data.multiblock.ModMultiblocks;
+package io.github.natank25.scp_byo.persistent_data.multiblock.multiblocks;
 
 import io.github.natank25.scp_byo.persistent_data.multiblock.Multiblock;
 import net.minecraft.block.pattern.BlockPattern;

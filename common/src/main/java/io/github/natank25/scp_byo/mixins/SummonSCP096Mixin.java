@@ -9,12 +9,10 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.command.SummonCommand;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.Objects;
 
@@ -26,7 +24,7 @@ class SummonSCP096Mixin {
 	private static void injectSummonSCP096Command(ServerCommandSource source, RegistryEntry.Reference<EntityType<?>> entityType, Vec3d pos, NbtCompound nbt, boolean initialize, CallbackInfoReturnable<Integer> cir) {
 		
 		if (ModEntities.SCP_096.getId() == entityType.value().arch$registryName() && initialize) {
-			DoesSCP096Exist doesSCP096Exist = ((World) source.getWorld()).scp_byoGetDataManager().getDoesSCP096Exists();
+			DoesSCP096Exist doesSCP096Exist = source.getWorld().scp_byoGetDataManager().getDoesSCP096Exists();
 			
 			if (doesSCP096Exist.getDoesSCP096Exist()) {
 				Objects.requireNonNull(source.getPlayer()).sendMessage(Text.translatable("scp_byo.commands.summonscp096.alreadyexists"));

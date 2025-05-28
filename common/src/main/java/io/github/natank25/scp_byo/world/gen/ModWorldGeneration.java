@@ -20,11 +20,9 @@ public enum ModWorldGeneration {
 	
 	private static void addSpawns() {
 		
-		BiomeModifications.addProperties((biomeContext, mutable) -> {
-			mutable.getSpawnProperties().addSpawn(SpawnGroup.AMBIENT, new SpawnSettings.SpawnEntry(ModEntities.SCP_096.get(), 50, 1, 1));
-		});
+		BiomeModifications.addProperties((biomeContext, mutable) -> mutable.getSpawnProperties().addSpawn(SpawnGroup.AMBIENT, new SpawnSettings.SpawnEntry(ModEntities.SCP_096.get(), 50, 1, 1)));
 		
-		SpawnPlacementsRegistry.register(ModEntities.SCP_096, SpawnRestriction.Location.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, Scp_096Entity::isValidNaturalSpawn);
+		SpawnPlacementsRegistry.register(ModEntities.SCP_096, SpawnRestriction.Location.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, (type, world, spawnReason, pos, random) -> Scp_096Entity.isValidNaturalSpawn(world, pos));
 		
 	}
 }

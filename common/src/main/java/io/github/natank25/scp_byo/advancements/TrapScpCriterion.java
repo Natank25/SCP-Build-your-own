@@ -28,8 +28,12 @@ public class TrapScpCriterion extends AbstractCriterion<TrapScpCriterion.Conditi
 	
 	@Override
 	protected Conditions conditionsFromJson(JsonObject obj, EntityPredicate.Extended playerPredicate, AdvancementEntityPredicateDeserializer predicateDeserializer) {
-		EntityType<? extends ScpEntity> scpType = (EntityType<? extends ScpEntity>) Registries.ENTITY_TYPE.get(new Identifier(obj.get("scp_type").getAsString()));
-		return new Conditions(scpType);
+		EntityType<?> scpType = Registries.ENTITY_TYPE.get(new Identifier(obj.get("scp_type").getAsString()));
+		if (!(scpType.getBaseClass().isAssignableFrom(ScpEntity.class))) {
+			throw new IllegalArgumentException("Entity type is not an ScpEntity: " + scpType);
+		}
+        //noinspection unchecked
+        return new Conditions((EntityType<? extends ScpEntity>) scpType);
 	}
 	
 	public static class Conditions extends AbstractCriterionConditions {

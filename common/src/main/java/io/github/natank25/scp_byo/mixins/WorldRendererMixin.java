@@ -1,8 +1,5 @@
 package io.github.natank25.scp_byo.mixins;
 
-// import io.github.natank25.scp_byo.mutliblock.Multiblock;
-// import io.github.natank25.scp_byo.persistent_data.cca.register.ModWorldComponents;
-
 import io.github.natank25.scp_byo.persistent_data.multiblock.Multiblock;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.render.VertexConsumer;
@@ -12,7 +9,6 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -34,7 +30,9 @@ public abstract class WorldRendererMixin {
 	
 	@Inject(method = "drawBlockOutline", at = @At("HEAD"), cancellable = true)
 	private void drawBlockOutlineMixin(MatrixStack matrices, VertexConsumer vertexConsumer, Entity entity, double cameraX, double cameraY, double cameraZ, BlockPos pos, BlockState state, CallbackInfo ci) {
-		Optional<? extends Multiblock> optionalMultiblock = ((World) world).scp_byoGetDataManager().getMultiblocks().getMultiblock(pos);
+		if (world == null)
+			return;
+		Optional<? extends Multiblock> optionalMultiblock = world.scp_byoGetDataManager().getMultiblocks().getMultiblock(pos);
 		if (optionalMultiblock.isPresent()) {
 			Multiblock multiblock = optionalMultiblock.get();
 			drawCuboidShapeOutline(

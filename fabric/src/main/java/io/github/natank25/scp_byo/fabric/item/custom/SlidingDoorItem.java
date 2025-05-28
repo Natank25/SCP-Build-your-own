@@ -2,7 +2,6 @@ package io.github.natank25.scp_byo.fabric.item.custom;
 
 import io.github.natank25.scp_byo.block.ModBlocks;
 import io.github.natank25.scp_byo.fabric.item.client.SlidingDoorItemRenderer;
-import net.minecraft.block.Block;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
 import net.minecraft.item.BlockItem;
 import software.bernie.geckolib.animatable.GeoItem;

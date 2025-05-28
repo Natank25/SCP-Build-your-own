@@ -1,5 +1,6 @@
 package io.github.natank25.scp_byo.block.entity;
 
+import io.github.natank25.scp_byo.block.custom.SlidingDoor;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -25,17 +26,14 @@ public class SlidingDoorBlockEntity extends BlockEntity implements GeoBlockEntit
 	
 	public SlidingDoorBlockEntity(BlockPos pos, BlockState state) {
 		super(ModBlocksEntities.SLIDING_DOOR_BLOCK_ENTITY.get(), pos, state);
+		open = state.get(SlidingDoor.OPEN);
 	}
 	
 	@Override
 	public AnimatableInstanceCache getAnimatableInstanceCache() {
 		return this.cache;
 	}
-	
-	public boolean isOpen() {
-		return this.open;
-	}
-	
+
 	public void setOpen(boolean open) {
 		this.open = open;
 	}

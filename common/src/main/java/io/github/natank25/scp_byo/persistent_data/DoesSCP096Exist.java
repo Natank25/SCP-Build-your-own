@@ -1,8 +1,6 @@
 package io.github.natank25.scp_byo.persistent_data;
 
-import io.github.natank25.scp_byo.Scp_byo;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.Identifier;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.World;
 

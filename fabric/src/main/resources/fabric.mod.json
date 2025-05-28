@@ -25,7 +25,6 @@
   },
 
   "mixins": [
-    "scp_byo.mixins.json",
     "scp_byo-common.mixins.json"
   ],
 

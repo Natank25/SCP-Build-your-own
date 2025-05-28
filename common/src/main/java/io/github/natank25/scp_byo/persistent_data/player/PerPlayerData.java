@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.UUID;
 
 public class PerPlayerData extends PersistentState {
-	HashMap<UUID, PlayerData> playerData = new HashMap<>();
+	final HashMap<UUID, PlayerData> playerData = new HashMap<>();
 	
 	public static PerPlayerData createFromNbt(NbtCompound nbt) {
 		PerPlayerData perPlayerData = new PerPlayerData();

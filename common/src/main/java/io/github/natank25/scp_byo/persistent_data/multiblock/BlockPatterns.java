@@ -1,7 +1,7 @@
 package io.github.natank25.scp_byo.persistent_data.multiblock;
 
-import io.github.natank25.scp_byo.persistent_data.multiblock.ModMultiblocks.FullIronBeacon;
-import io.github.natank25.scp_byo.persistent_data.multiblock.ModMultiblocks.SCP096Cage;
+import io.github.natank25.scp_byo.persistent_data.multiblock.multiblocks.FullIronBeacon;
+import io.github.natank25.scp_byo.persistent_data.multiblock.multiblocks.SCP096Cage;
 import io.github.natank25.scp_byo.utils.Utils;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Blocks;
@@ -33,11 +33,7 @@ public enum BlockPatterns {
 	public static Optional<Class<? extends Multiblock>> getMultiblockClassForId(Identifier id) {
 		return BLOCK_PATTERNS.stream().filter(scpBYOBlockPattern -> scpBYOBlockPattern.getId().equals(id)).findFirst().map(ScpBYOBlockPattern::getMultiblockClass);
 	}
-	
-	public static Optional<ScpBYOBlockPattern> getBlockPatternForId(Identifier id) {
-		return BLOCK_PATTERNS.stream().filter(blockPattern -> blockPattern.getId().equals(id)).findFirst();
-	}
-	
+
 	public static Optional<Identifier> getIdForMultiblockClass(Class<? extends Multiblock> multiblockClass) {
 		for (ScpBYOBlockPattern pattern : BLOCK_PATTERNS) {
 			if (pattern.getMultiblockClass().equals(multiblockClass)) {
