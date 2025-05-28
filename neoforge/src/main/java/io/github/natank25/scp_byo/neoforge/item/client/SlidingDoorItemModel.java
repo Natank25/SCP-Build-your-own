@@ -1,7 +1,7 @@
-package io.github.natank25.scp_byo.forge.item.client;
+package io.github.natank25.scp_byo.neoforge.item.client;
 
 import io.github.natank25.scp_byo.Scp_byo;
-import io.github.natank25.scp_byo.forge.item.custom.SlidingDoorItem;
+import io.github.natank25.scp_byo.neoforge.item.custom.SlidingDoorItem;
 import net.minecraft.util.Identifier;
 import software.bernie.geckolib.model.GeoModel;
 

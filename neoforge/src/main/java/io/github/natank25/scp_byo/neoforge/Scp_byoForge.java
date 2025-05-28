@@ -1,4 +1,4 @@
-package io.github.natank25.scp_byo.forge;
+package io.github.natank25.scp_byo.neoforge;
 
 import dev.architectury.platform.forge.EventBuses;
 import io.github.natank25.scp_byo.Scp_byo;
@@ -11,6 +11,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+
 @Mod(Scp_byo.MOD_ID)
 public class Scp_byoForge {
     static final IEventBus BUS = FMLJavaModLoadingContext.get().getModEventBus();

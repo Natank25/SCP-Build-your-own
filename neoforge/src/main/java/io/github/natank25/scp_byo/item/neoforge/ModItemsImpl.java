@@ -1,6 +1,6 @@
-package io.github.natank25.scp_byo.item.forge;
+package io.github.natank25.scp_byo.item.neoforge;
 
-import io.github.natank25.scp_byo.forge.item.custom.SlidingDoorItem;
+import io.github.natank25.scp_byo.neoforge.item.custom.SlidingDoorItem;
 import net.minecraft.item.Item;
 
 public class ModItemsImpl {

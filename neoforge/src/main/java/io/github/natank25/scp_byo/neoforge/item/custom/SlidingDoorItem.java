@@ -1,7 +1,7 @@
-package io.github.natank25.scp_byo.forge.item.custom;
+package io.github.natank25.scp_byo.neoforge.item.custom;
 
 import io.github.natank25.scp_byo.block.ModBlocks;
-import io.github.natank25.scp_byo.forge.item.client.SlidingDoorItemRenderer;
+import io.github.natank25.scp_byo.neoforge.item.client.SlidingDoorItemRenderer;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
 import net.minecraft.item.BlockItem;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
@@ -45,7 +45,7 @@ public class SlidingDoorItem extends BlockItem implements GeoItem {
     
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
-        controllerRegistrar.add(new AnimationController<>(this, "controller", 0, io.github.natank25.scp_byo.forge.item.custom.SlidingDoorItem::predicate));
+        controllerRegistrar.add(new AnimationController<>(this, "controller", 0, io.github.natank25.scp_byo.neoforge.item.custom.SlidingDoorItem::predicate));
         
     }
     
