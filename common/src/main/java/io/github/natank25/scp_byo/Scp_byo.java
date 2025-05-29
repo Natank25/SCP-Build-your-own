@@ -1,8 +1,10 @@
 package io.github.natank25.scp_byo;
 
+import com.google.common.base.Suppliers;
 import dev.architectury.networking.NetworkManager;
 import dev.architectury.platform.Platform;
 import dev.architectury.registry.client.level.entity.EntityRendererRegistry;
+import dev.architectury.registry.registries.RegistrarManager;
 import dev.architectury.utils.Env;
 import dev.architectury.utils.EnvExecutor;
 import io.github.natank25.scp_byo.advancements.ModCriterions;
@@ -33,6 +35,8 @@ import net.minecraft.world.World;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import software.bernie.geckolib.GeckoLib;
+
+import java.util.function.Supplier;
 
 public class Scp_byo {
     public static final String MOD_ID = "scp_byo";

@@ -12,6 +12,7 @@ import io.github.natank25.scp_byo.persistent_data.multiblock.multiblocks.SCP096C
 import io.github.natank25.scp_byo.persistent_data.multiblock.Multiblock;
 import io.github.natank25.scp_byo.persistent_data.multiblock.Multiblocks;
 import io.github.natank25.scp_byo.sounds.ModSounds;
+import io.github.natank25.scp_byo.utils.Utils;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -37,8 +38,11 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.PlaySoundFromEntityS2CPacket;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.stat.Stats;
@@ -51,11 +55,13 @@ import net.minecraft.world.WorldAccess;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.core.animatable.GeoAnimatable;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInstanceCache;
-import software.bernie.geckolib.core.animation.*;
-import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.animatable.GeoAnimatable;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
+import software.bernie.geckolib.animatable.manager.AnimatableManager;
+import software.bernie.geckolib.animatable.processing.AnimationController;
+import software.bernie.geckolib.animatable.processing.AnimationTest;
+import software.bernie.geckolib.animation.*;
 
 import java.util.*;
 import java.util.function.IntFunction;
@@ -66,17 +72,16 @@ import java.util.function.Supplier;
 
 //chase ? not moving animation : sitting animation (WIP) (need to re add SCP096Pose.SITTING)
 public class Scp_096Entity extends ScpEntity implements GeoEntity {
-    private static final UUID ATTACKING_SPEED_BOOST_ID = UUID.fromString("020E0DFB-87AE-4653-9556-831010E291A0");
     private static final TrackedData<Integer> SCP_POSE;
     private static final EntityAttributeModifier ATTACKING_SPEED_BOOST;
     private static final float STEP_HEIGHT = 4.0F;
-    public static final Supplier<EntityType<Scp_096Entity>> TYPE = Suppliers.memoize(() -> EntityType.Builder.create(Scp_096Entity::new, SpawnGroup.MONSTER).setDimensions(0.6f, 2.5f).build("scp_096"));
+    public static final Supplier<EntityType<Scp_096Entity>> TYPE = Suppliers.memoize(() -> EntityType.Builder.create(Scp_096Entity::new, SpawnGroup.MONSTER).dimensions(0.6f, 2.5f).build(RegistryKey.of(RegistryKeys.ENTITY_TYPE, Utils.newIdentifier("scp_096"))));
     private static final TrackedData<Float> SCPHealth;
 
     static {
         SCP_POSE = DataTracker.registerData(Scp_096Entity.class, TrackedDataHandlerRegistry.INTEGER);
         SCPHealth = DataTracker.registerData(Scp_096Entity.class, TrackedDataHandlerRegistry.FLOAT);
-        ATTACKING_SPEED_BOOST = new EntityAttributeModifier(ATTACKING_SPEED_BOOST_ID, "Attacking speed boost", 0.20000000596046448, EntityAttributeModifier.Operation.ADDITION);
+        ATTACKING_SPEED_BOOST = new EntityAttributeModifier(Utils.newIdentifier("attack_speed_boost"), 0.20000000596046448, EntityAttributeModifier.Operation.ADD_VALUE);
     }
 
     private final AnimatableInstanceCache animatableInstanceCache = new SingletonAnimatableInstanceCache(this);
@@ -90,13 +95,17 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
 
     public Scp_096Entity(EntityType<? extends PathAwareEntity> entityType, World world) {
         super(entityType, world);
-        this.setStepHeight(STEP_HEIGHT);
+        EntityAttributeInstance step_height_attr = this.getAttributeInstance(EntityAttributes.STEP_HEIGHT);
+        if (step_height_attr == null)
+            throw new RuntimeException("SCP 096 entity should have STEP_HEIGHT attribute");
+        step_height_attr.setBaseValue(STEP_HEIGHT);
         this.setPathfindingPenalty(PathNodeType.WATER, 0.0F);
         this.setPathfindingPenalty(PathNodeType.LAVA, 0.0F);
         this.setPathfindingPenalty(PathNodeType.DANGER_FIRE, 0.0F);
         this.setPathfindingPenalty(PathNodeType.DAMAGE_FIRE, 0.0F);
         this.setPathfindingPenalty(PathNodeType.RAIL, 0.0F);
         this.setPersistent();
+        initDataTracker();
 
 
         DoesSCP096Exist.get(world).setDoesSCP096Exists(true);
@@ -116,7 +125,7 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
     }
 
     public static DefaultAttributeContainer.Builder setAttributes() {
-        return MobEntity.createMobAttributes().add(EntityAttributes.GENERIC_MAX_HEALTH, 100.0D).add(EntityAttributes.GENERIC_ATTACK_DAMAGE, Float.POSITIVE_INFINITY).add(EntityAttributes.GENERIC_ATTACK_SPEED, 0.5f).add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.30000001192092896);
+        return MobEntity.createMobAttributes().add(EntityAttributes.MAX_HEALTH, 100.0D).add(EntityAttributes.ATTACK_DAMAGE, Float.POSITIVE_INFINITY).add(EntityAttributes.ATTACK_SPEED, 0.5f).add(EntityAttributes.MOVEMENT_SPEED, 0.30000001192092896);
     }
 
     @Override
@@ -133,6 +142,11 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
     @Override
     public EntityNavigation createNavigation(World world) {
         return new Navigation(this, world);
+    }
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
+        controllerRegistrar.add(new AnimationController<>("controller", 2, this::predicate));
     }
 
     @Override
@@ -191,7 +205,7 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
     @Override
     public void playSound(SoundEvent sound, float volume, float pitch) {
 
-        if (this.world.isClient || Objects.equals(sound.getId().getNamespace(), "minecraft")) return;
+        if (this.getWorld().isClient || Objects.equals(sound.id().getNamespace(), "minecraft")) return;
 
         if (!this.playingSounds.isEmpty()) this.stopAllSounds();
 
@@ -205,18 +219,13 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
         super.readCustomDataFromNbt(nbt);
-        this.setSCP_Pose(SCP096Pose.byId(nbt.getInt("SCP_Pose")));
-        this.setSCPHealth(nbt.getInt("SCP_health"));
-    }
-
-    @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
-        controllerRegistrar.add(new AnimationController<>(this, "controller", 2, this::predicate));
+        this.setSCP_Pose(SCP096Pose.byId(nbt.getInt("SCP_Pose").orElseThrow()));
+        this.setSCPHealth(nbt.getInt("SCP_health").orElseThrow());
     }
 
     @Override
     public void remove(RemovalReason reason) {
-        if (!this.world.isClient()) {
+        if (!this.getWorld().isClient()) {
             DoesSCP096Exist.get(this.getWorld()).setDoesSCP096Exists(false);
         }
         this.stopAllSounds();
@@ -232,7 +241,7 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
     @Override
     public void tick() {
 
-        if (!this.world.isClient) {
+        if (!this.getWorld().isClient) {
             if (null == this.getTarget() && !this.getWorld().getPlayers().isEmpty()) this.setTarget();
 
             if (this.age % 20 == 0) {
@@ -249,8 +258,6 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
             this.loadChunks();
             this.regenerate();
             this.updateSpeed();
-
-            this.checkBlockCollision();
         }
 
         super.tick();
@@ -264,10 +271,10 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
     }
 
     @Override
-    protected void applyDamage(DamageSource source, float amount) {
+    protected void applyDamage(ServerWorld world, DamageSource source, float amount) {
 
         if (source.isSourceCreativePlayer() || source.isOf(DamageTypes.OUT_OF_WORLD)) {
-            super.applyDamage(source, amount);
+            super.applyDamage(world, source, amount);
         } else {
             float f = amount;
             amount = Math.max(amount, 0.0F);
@@ -277,7 +284,7 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
             }
 
 
-            this.getDamageTracker().onDamage(source, this.getHealth(), 0);
+            this.getDamageTracker().onDamage(source, 0);
             this.emitGameEvent(GameEvent.ENTITY_DAMAGE);
 
 
@@ -301,11 +308,11 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
         return this.idling ? ModSounds.SCP096_IDLE.get() : null;
     }
 
-    @Override
-    protected void initDataTracker() {
-        super.initDataTracker();
-        this.dataTracker.startTracking(SCP_POSE, 0);
-        this.dataTracker.startTracking(SCPHealth, 100.0f);
+    private void initDataTracker() {
+        DataTracker.Builder builder = new DataTracker.Builder(this);
+        builder.add(SCP_POSE, 0);
+        builder.add(SCPHealth, 100.0f);
+        super.initDataTracker(builder);
     }
 
     @Override
@@ -331,7 +338,7 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
             if (result) {
                 this.setSCP_Pose(SCP096Pose.RAGING);
                 this.raging = true;
-                this.startChaseTick = this.world.getTime() + 500;
+                this.startChaseTick = this.getWorld().getTime() + 500;
                 this.idling = false;
                 this.setTarget(p);
                 break;
@@ -345,8 +352,8 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
     }
 
     private void StartChaseAfterRage() {
-        if (this.world.getTime() == this.startChaseTick) {
-            if (!this.world.isClient()) {
+        if (this.getWorld().getTime() == this.startChaseTick) {
+            if (!this.getWorld().isClient()) {
                 this.playSound(this.random.nextBoolean() ? ModSounds.SCP096_RAGE_CHASE.get() : ModSounds.SCP096_CHASE.get(), 5, 1);
             }
             this.raging = false;
@@ -414,7 +421,7 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
     }
 
     private void loadChunks() {
-        if (this.world.isClient()) return;
+        if (this.getWorld().isClient()) return;
 
         ChunkPos pos = this.getChunkPos();
         Collection<ChunkPos> loadedChunks = new ArrayList<>();
@@ -441,7 +448,7 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
         }
     }
 
-    private <T extends GeoAnimatable> PlayState predicate(AnimationState<T> tAnimationState) {
+    private <T extends GeoAnimatable> PlayState predicate(final AnimationTest<T> tAnimationState) {
         String animName = switch (this.getSCP_Pose()) {
             case IDLING -> "idling";
             case RAGING -> "rage";
@@ -456,7 +463,7 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
         };
 
 
-        AnimationController<T> controller = tAnimationState.getController();
+        AnimationController<T> controller = tAnimationState.controller();
         controller.setAnimation(RawAnimation.begin().then("animation.scp_096." + animName, loopType));
         return PlayState.CONTINUE;
     }
@@ -489,11 +496,13 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
             }
         }
 
-        EntityAttributeInstance entityAttribute = this.getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED);
+        EntityAttributeInstance entityAttribute = this.getAttributeInstance(EntityAttributes.MOVEMENT_SPEED);
+        if (entityAttribute == null)
+            return;
         if (null == this.getTarget()) {
             Objects.requireNonNull(entityAttribute).removeModifier(ATTACKING_SPEED_BOOST);
         } else {
-            if (!Objects.requireNonNull(entityAttribute).hasModifier(ATTACKING_SPEED_BOOST)) {
+            if (!Objects.requireNonNull(entityAttribute).hasModifier(ATTACKING_SPEED_BOOST.id())) {
                 entityAttribute.addTemporaryModifier(ATTACKING_SPEED_BOOST);
             }
         }
@@ -510,7 +519,7 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
     public enum SCP096Pose {
         NOT_MOVING(4), CHASING(3), GETTING_UP(1), RAGING(2), IDLING(0);
 
-        private static final IntFunction<SCP096Pose> BY_ID = ValueLists.createIdToValueFunction(SCP096Pose::getId, values(), ValueLists.OutOfBoundsHandling.ZERO);
+        private static final IntFunction<SCP096Pose> BY_ID = ValueLists.createIndexToValueFunction(SCP096Pose::getId, values(), ValueLists.OutOfBoundsHandling.ZERO);
         private final int id;
 
         SCP096Pose(int id) {
@@ -549,7 +558,7 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
 
         @Override
         public boolean isValidPosition(BlockPos pos) {
-            return !this.world.getFluidState(pos).isOf(Fluids.EMPTY) || super.isValidPosition(pos);
+            return !this.entity.getWorld().getFluidState(pos).isOf(Fluids.EMPTY) || super.isValidPosition(pos);
         }
     }
 }
