@@ -1,5 +1,7 @@
 package io.github.natank25.scp_byo.persistent_data.multiblock;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.natank25.scp_byo.Scp_byo;
 import io.github.natank25.scp_byo.utils.MathHelper;
 import io.github.natank25.scp_byo.utils.ModConstants;
@@ -40,6 +42,11 @@ public class Multiblock {
 	private ParticleEffect spawnParticles = DustParticleEffect.DEFAULT;
 	private ParticleEffect breakParticles = DustParticleEffect.DEFAULT;
 	private double particleOffset = 0.15;
+
+    public static final Codec<Multiblock> CODEC = RecordCodecBuilder.create(instance ->
+            instance.group(
+
+            ).apply(instance, Multiblock::new));
 	
 	public Multiblock(@NotNull BlockPattern.Result result, World world) {
 		this.forward = result.getForwards();
@@ -77,7 +84,7 @@ public class Multiblock {
 	}
 	
 	public final void addParticle(ParticleEffect particle, Vec3d pos, Vec3d velocity) {
-		this.world.addParticle(particle, pos.x, pos.y, pos.z, velocity.x, velocity.y, velocity.z);
+		this.world.addImportantParticleClient(particle, pos.x, pos.y, pos.z, velocity.x, velocity.y, velocity.z);
 	}
 	
 	//endregion
@@ -179,24 +186,24 @@ public class Multiblock {
 		List<Vec3d> particlesPos = new ArrayList<>(corners);
 		
 		for (double depthOffset = offset; depthOffset < this.depth; depthOffset += offset) {
-			particlesPos.add(this.add(corners.get(0), 0, 0, depthOffset));
-			particlesPos.add(this.add(corners.get(0), 0, this.height, depthOffset));
-			particlesPos.add(this.add(corners.get(0), this.width, 0, depthOffset));
-			particlesPos.add(this.add(corners.get(0), this.width, this.height, depthOffset));
+			particlesPos.add(this.add(corners.getFirst(), 0, 0, depthOffset));
+			particlesPos.add(this.add(corners.getFirst(), 0, this.height, depthOffset));
+			particlesPos.add(this.add(corners.getFirst(), this.width, 0, depthOffset));
+			particlesPos.add(this.add(corners.getFirst(), this.width, this.height, depthOffset));
 		}
 		
 		for (double heightOffset = offset; heightOffset < this.height; heightOffset += offset) {
-			particlesPos.add(this.add(corners.get(0), 0, heightOffset, 0));
-			particlesPos.add(this.add(corners.get(0), this.width, heightOffset, 0));
-			particlesPos.add(this.add(corners.get(0), 0, heightOffset, this.depth));
-			particlesPos.add(this.add(corners.get(0), this.width, heightOffset, this.depth));
+			particlesPos.add(this.add(corners.getFirst(), 0, heightOffset, 0));
+			particlesPos.add(this.add(corners.getFirst(), this.width, heightOffset, 0));
+			particlesPos.add(this.add(corners.getFirst(), 0, heightOffset, this.depth));
+			particlesPos.add(this.add(corners.getFirst(), this.width, heightOffset, this.depth));
 		}
 		
 		for (double widthOffset = offset; widthOffset < this.width; widthOffset += offset) {
-			particlesPos.add(this.add(corners.get(0), widthOffset, 0, 0));
-			particlesPos.add(this.add(corners.get(0), widthOffset, this.height, 0));
-			particlesPos.add(this.add(corners.get(0), widthOffset, 0, this.depth));
-			particlesPos.add(this.add(corners.get(0), widthOffset, this.height, this.depth));
+			particlesPos.add(this.add(corners.getFirst(), widthOffset, 0, 0));
+			particlesPos.add(this.add(corners.getFirst(), widthOffset, this.height, 0));
+			particlesPos.add(this.add(corners.getFirst(), widthOffset, 0, this.depth));
+			particlesPos.add(this.add(corners.getFirst(), widthOffset, this.height, this.depth));
 		}
 		
 		return particlesPos;
@@ -264,7 +271,7 @@ public class Multiblock {
 		List<Vec3d> particlesPos = this.getOutlinePos(this.particleOffset);
 		
 		for (Vec3d particlePos : particlesPos) {
-			this.world.addParticle(particle, particlePos.x, particlePos.y, particlePos.z, 0, 0, 0);
+            this.addParticle(particle, particlePos, Vec3d.ZERO);
 		}
 	}
 	

@@ -6,6 +6,7 @@ import io.github.natank25.scp_byo.entity.ModEntities;
 import io.github.natank25.scp_byo.item.ModItems;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
+import net.minecraft.registry.RegistryWrapper;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -16,7 +17,7 @@ public class ModEnglishLangProvider extends FabricLanguageProvider {
     }
 
     @Override
-    public void generateTranslations(TranslationBuilder translationBuilder) {
+    public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup, TranslationBuilder translationBuilder) {
         translationBuilder.add(ModItems.KEYCARD_1.get(), "Keycard L.1");
         translationBuilder.add(ModItems.KEYCARD_2.get(), "Keycard L.2");
         translationBuilder.add(ModItems.KEYCARD_3.get(), "Keycard L.3");
@@ -41,8 +42,6 @@ public class ModEnglishLangProvider extends FabricLanguageProvider {
         translationBuilder.add(ModEntities.SCP_096.get(), "SCP 096");
 
         translationBuilder.add("scp_byo.commands.summonscp096.alreadyexists", "SCP 096 already exists !");
-
-        translationBuilder.add(ModItems.SCP_FONDATION_ITEM_GROUP.get(), "SCP: BYO");
 
         translationBuilder.add(ModGamerules.CAN_SCP096_SPAWN.getTranslationKey(), "Can SCP-096 spawn naturally");
 

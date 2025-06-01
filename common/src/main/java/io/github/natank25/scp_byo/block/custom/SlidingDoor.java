@@ -1,11 +1,12 @@
 package io.github.natank25.scp_byo.block.custom;
 
+import com.mojang.serialization.MapCodec;
 import io.github.natank25.scp_byo.block.entity.ModBlocksEntities;
 import io.github.natank25.scp_byo.block.entity.SlidingDoorBlockEntity;
+import io.github.natank25.scp_byo.sounds.ModSounds;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.enums.DoubleBlockHalf;
-import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.pathing.NavigationType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -16,31 +17,33 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
-import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
+import net.minecraft.world.block.WireOrientation;
 import net.minecraft.world.event.GameEvent;
+import net.minecraft.world.tick.ScheduledTickView;
 import org.jetbrains.annotations.Nullable;
 
 public class SlidingDoor extends BlockWithEntity {
 
     public static final EnumProperty<DoubleBlockHalf> HALF;
     public static final BooleanProperty OPEN;
-    private static final DirectionProperty FACING;
+    public static final MapCodec<SlidingDoor> CODEC;
+    private static final EnumProperty<Direction> FACING;
     private static final BooleanProperty POWERED;
     //region Shapes
     private static final VoxelShape EAST_SHAPE;
@@ -50,7 +53,6 @@ public class SlidingDoor extends BlockWithEntity {
     private static final VoxelShape WEST_OPEN_SHAPE;
     private static final VoxelShape SOUTH_OPEN_SHAPE;
     //endregion
-
 
     static {
         EAST_SHAPE = Block.createCuboidShape(6, 0, 0, 10, 16, 16);
@@ -65,6 +67,7 @@ public class SlidingDoor extends BlockWithEntity {
         OPEN = Properties.OPEN;
         POWERED = Properties.POWERED;
         HALF = Properties.DOUBLE_BLOCK_HALF;
+        CODEC = createCodec((settings) -> new SlidingDoor(settings, ModSounds.SLIDING_DOOR_OPEN.get(), ModSounds.SLIDING_DOOR_OPEN.get()));
     }
 
     private final SoundEvent closeSound;
@@ -79,7 +82,7 @@ public class SlidingDoor extends BlockWithEntity {
     }
 
     @Override
-    public boolean canPathfindThrough(BlockState state, BlockView world, BlockPos pos, NavigationType type) {
+    public boolean canPathfindThrough(BlockState state, NavigationType type) {
         return state.get(OPEN);
     }
 
@@ -129,18 +132,13 @@ public class SlidingDoor extends BlockWithEntity {
 
     //endregion
 
-    @Override
-    public PistonBehavior getPistonBehavior(BlockState state) {
-        return PistonBehavior.BLOCK;
-    }
-
     @Nullable
     public BlockState getPlacementState(ItemPlacementContext ctx) {
         BlockPos pos = ctx.getBlockPos();
         World world = ctx.getWorld();
 
         if (world.getBlockState(ctx.getBlockPos().down()) == Blocks.AIR.getDefaultState()) return null;
-        if (pos.getY() >= world.getTopY() - 1) return null;
+        if (pos.getY() >= world.getTopYInclusive() - 1) return null;
         if (!world.getBlockState(pos.up()).canReplace(ctx)) return null;
 
         Direction facing = this.getFacing(ctx);
@@ -154,7 +152,7 @@ public class SlidingDoor extends BlockWithEntity {
 
     @Override
     public BlockRenderType getRenderType(BlockState state) {
-        return BlockRenderType.ENTITYBLOCK_ANIMATED;
+        return BlockRenderType.MODEL;
     }
 
     @Override
@@ -163,7 +161,7 @@ public class SlidingDoor extends BlockWithEntity {
     }
 
     @Override
-    public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
+    public BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
         DoubleBlockHalf doubleBlockHalf = state.get(HALF);
 
         if (direction.getAxis() == Direction.Axis.Y && doubleBlockHalf == DoubleBlockHalf.LOWER == (direction == Direction.UP)) {
@@ -172,15 +170,15 @@ public class SlidingDoor extends BlockWithEntity {
             this.setOpen(world, pos, neighborState.get(OPEN));
             return state.with(FACING, neighborState.get(FACING)).with(OPEN, neighborState.get(OPEN)).with(POWERED, neighborState.get(POWERED));
         }
-        if (direction.getAxis().isHorizontal() && neighborState.isOf(this) && neighborState.get(HALF) == doubleBlockHalf && neighborState.get(FACING).getOpposite() == state.get(FACING) && !state.get(POWERED)){
+        if (direction.getAxis().isHorizontal() && neighborState.isOf(this) && neighborState.get(HALF) == doubleBlockHalf && neighborState.get(FACING).getOpposite() == state.get(FACING) && !state.get(POWERED)) {
             this.setOpen(world, pos, neighborState.get(OPEN));
             return state.with(OPEN, neighborState.get(OPEN));
         }
-        return doubleBlockHalf == DoubleBlockHalf.LOWER && direction == Direction.DOWN && !state.canPlaceAt(world, pos) ? Blocks.AIR.getDefaultState() : super.getStateForNeighborUpdate(state, direction, neighborState, world, pos, neighborPos);
+        return doubleBlockHalf == DoubleBlockHalf.LOWER && direction == Direction.DOWN && !state.canPlaceAt(world, pos) ? Blocks.AIR.getDefaultState() : super.getStateForNeighborUpdate(state, world, tickView, pos, direction, neighborPos, neighborState, random);
     }
 
     @Override
-    public void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
+    public void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, @Nullable WireOrientation wireOrientation, boolean notify) {
         boolean powered = world.isReceivingRedstonePower(pos) || world.isReceivingRedstonePower(pos.offset(state.get(HALF) == DoubleBlockHalf.LOWER ? Direction.UP : Direction.DOWN));
         boolean open = powered;
 
@@ -204,7 +202,7 @@ public class SlidingDoor extends BlockWithEntity {
 
     //region Door Methods
     @Override
-    public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+    public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
         if (!world.isClient && player.isCreative()) {
             DoubleBlockHalf doubleBlockHalf = state.get(HALF);
             if (doubleBlockHalf == DoubleBlockHalf.UPPER) {
@@ -217,7 +215,7 @@ public class SlidingDoor extends BlockWithEntity {
                 }
             }
         }
-        super.onBreak(world, pos, state, player);
+        return super.onBreak(world, pos, state, player);
     }
 
     @Override
@@ -226,7 +224,7 @@ public class SlidingDoor extends BlockWithEntity {
     }
 
     @Override
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
         return ActionResult.PASS;
     }
 
@@ -283,8 +281,13 @@ public class SlidingDoor extends BlockWithEntity {
         world.playSound(null, pos, open ? this.openSound : this.closeSound, SoundCategory.BLOCKS, 1.0F, world.getRandom().nextFloat() * 0.1F + 0.9F);
     }
 
-    private void setOpen(WorldAccess world, BlockPos pos, boolean open) {
+    private void setOpen(WorldView world, BlockPos pos, boolean open) {
         world.getBlockEntity(pos, ModBlocksEntities.SLIDING_DOOR_BLOCK_ENTITY.get()).orElseThrow().setOpen(open);
+    }
+
+    @Override
+    protected MapCodec<? extends BlockWithEntity> getCodec() {
+        return CODEC;
     }
     //endregion
 

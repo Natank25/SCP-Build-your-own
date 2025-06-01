@@ -30,22 +30,22 @@ public enum ModBlocks {
 	public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(Scp_byo.MOD_ID, RegistryKeys.BLOCK);
 	
 	//region Normal Blocks
-	public static final RegistrySupplier<Block> CONCRETE_FLOOR = registerBlock("concrete_floor", () -> new Block(AbstractBlock.Settings.of(Material.STONE).strength(5, 1200).requiresTool()));
-	public static final RegistrySupplier<Block> TILE_FLOOR = registerBlock("tile_floor", () -> new Block(AbstractBlock.Settings.of(Material.STONE).strength(5, 1200).requiresTool()));
-	public static final RegistrySupplier<Block> ELEVATOR_FLOOR = registerBlock("elevator_floor", () -> new Block(AbstractBlock.Settings.of(Material.STONE).strength(5, 1200).requiresTool()));
-	public static final RegistrySupplier<Block> DIRTY_METAL = registerBlock("dirty_metal", () -> new Block(AbstractBlock.Settings.of(Material.STONE).strength(5, 1200).requiresTool()));
-	public static final RegistrySupplier<Block> FONDATION_GLASS = registerBlock("fondation_glass", () -> new GlassBlock(AbstractBlock.Settings.of(Material.GLASS).strength(5, 1200).sounds(BlockSoundGroup.GLASS).nonOpaque().allowsSpawning(ModBlocks::isNever).solidBlock(ModBlocks::isNever).suffocates(ModBlocks::isNever).blockVision(ModBlocks::isNever)));
+	public static final RegistrySupplier<Block> CONCRETE_FLOOR = registerBlock("concrete_floor", () -> new Block(AbstractBlock.Settings.copy(Blocks.STONE).strength(5, 1200).requiresTool()));
+	public static final RegistrySupplier<Block> TILE_FLOOR = registerBlock("tile_floor", () -> new Block(AbstractBlock.Settings.copy(Blocks.STONE).strength(5, 1200).requiresTool()));
+	public static final RegistrySupplier<Block> ELEVATOR_FLOOR = registerBlock("elevator_floor", () -> new Block(AbstractBlock.Settings.copy(Blocks.STONE).strength(5, 1200).requiresTool()));
+	public static final RegistrySupplier<Block> DIRTY_METAL = registerBlock("dirty_metal", () -> new Block(AbstractBlock.Settings.copy(Blocks.STONE).strength(5, 1200).requiresTool()));
+	public static final RegistrySupplier<Block> FONDATION_GLASS = registerBlock("fondation_glass", () -> new TransparentBlock(AbstractBlock.Settings.copy(Blocks.GLASS).strength(5, 1200).sounds(BlockSoundGroup.GLASS).nonOpaque().allowsSpawning(ModBlocks::isNever).solidBlock(ModBlocks::isNever).suffocates(ModBlocks::isNever).blockVision(ModBlocks::isNever)));
 	//endregion
 	
 	//region Custom Blocks
-	public static final RegistrySupplier<Block> KEYCARD_READER = registerBlock("keycard_reader", () -> new KeycardReaderBlock(AbstractBlock.Settings.of(Material.METAL).strength(5, 1200).requiresTool()));
-	public static final RegistrySupplier<Block> ELEVATOR_WALL = registerBlock("elevator_wall", () -> new ElevatorWallBlock(AbstractBlock.Settings.of(Material.STONE).strength(5, 1200).requiresTool()));
-	public static final RegistrySupplier<Block> SLIDING_DOOR = registerBlockWithoutItem("sliding_door", () -> new SlidingDoor(AbstractBlock.Settings.of(Material.METAL).strength(5, 1200).requiresTool().nonOpaque(), ModSounds.SLIDING_DOOR_OPEN.get(), ModSounds.SLIDING_DOOR_OPEN.get()));
+	public static final RegistrySupplier<Block> KEYCARD_READER = registerBlock("keycard_reader", () -> new KeycardReaderBlock(AbstractBlock.Settings.copy(Blocks.IRON_BLOCK).strength(5, 1200).requiresTool()));
+	public static final RegistrySupplier<Block> ELEVATOR_WALL = registerBlock("elevator_wall", () -> new ElevatorWallBlock(AbstractBlock.Settings.copy(Blocks.STONE).strength(5, 1200).requiresTool()));
+	public static final RegistrySupplier<Block> SLIDING_DOOR = registerBlockWithoutItem("sliding_door", () -> new SlidingDoor(AbstractBlock.Settings.copy(Blocks.IRON_BLOCK).strength(5, 1200).requiresTool().nonOpaque(), ModSounds.SLIDING_DOOR_OPEN.get(), ModSounds.SLIDING_DOOR_OPEN.get()));
 	
 	//region Extendable Blocks
-	public static final RegistrySupplier<Block> WHITE_WALL = registerBlock("white_wall", () -> new ExtendableBlock(AbstractBlock.Settings.of(Material.STONE).strength(5, 1200).requiresTool(), 10));
-	public static final RegistrySupplier<Block> CONCRETE_WALL = registerBlock("concrete_wall", () -> new ExtendableBlock(AbstractBlock.Settings.of(Material.STONE).strength(5, 1200).requiresTool(), 10));
-	public static final RegistrySupplier<Block> OFFICE_WALL = registerBlock("office_wall", () -> new ExtendableBlock(AbstractBlock.Settings.of(Material.STONE).strength(5, 1200).requiresTool(), 10));
+	public static final RegistrySupplier<Block> WHITE_WALL = registerBlock("white_wall", () -> new ExtendableBlock(AbstractBlock.Settings.copy(Blocks.STONE).strength(5, 1200).requiresTool(), 10));
+	public static final RegistrySupplier<Block> CONCRETE_WALL = registerBlock("concrete_wall", () -> new ExtendableBlock(AbstractBlock.Settings.copy(Blocks.STONE).strength(5, 1200).requiresTool(), 10));
+	public static final RegistrySupplier<Block> OFFICE_WALL = registerBlock("office_wall", () -> new ExtendableBlock(AbstractBlock.Settings.copy(Blocks.STONE).strength(5, 1200).requiresTool(), 10));
 	//endregion
 	
 	//endregion

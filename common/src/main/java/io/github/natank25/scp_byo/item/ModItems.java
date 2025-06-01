@@ -11,8 +11,10 @@ import io.github.natank25.scp_byo.item.custom.SCP096SpawnEggItem;
 import io.github.natank25.scp_byo.item.custom.Wrench;
 import io.github.natank25.scp_byo.utils.Utils;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 import java.util.function.Supplier;
@@ -22,8 +24,8 @@ import static io.github.natank25.scp_byo.Scp_byo.MOD_ID;
 public class ModItems {
 	
 	public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(MOD_ID, RegistryKeys.ITEM);
-	
-	public static final CreativeTabRegistry.TabSupplier SCP_FONDATION_ITEM_GROUP = CreativeTabRegistry.create(new Identifier(Scp_byo.MOD_ID, "main_creative_tab"), () -> new ItemStack(ModBlocks.OFFICE_WALL.get().asItem()));
+
+	public static final ItemGroup SCP_FONDATION_ITEM_GROUP = CreativeTabRegistry.create(Text.translatable("itemGroup.scp_byo.main_creative_tab"), () -> new ItemStack(ModBlocks.OFFICE_WALL.get().asItem()));
 	//region Normal Items
 	public static final RegistrySupplier<Item> KEYCARD_1 = registerItem("keycard_1", () -> new Item(defaultSettings().maxCount(1)));
 	public static final RegistrySupplier<Item> KEYCARD_2 = registerItem("keycard_2", () -> new Item(defaultSettings().maxCount(1)));

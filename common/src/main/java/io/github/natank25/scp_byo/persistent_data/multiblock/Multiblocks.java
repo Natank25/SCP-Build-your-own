@@ -1,5 +1,7 @@
 package io.github.natank25.scp_byo.persistent_data.multiblock;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.architectury.networking.NetworkManager;
 import io.github.natank25.scp_byo.Scp_byo;
 import io.github.natank25.scp_byo.utils.ModConstants;
@@ -20,12 +22,15 @@ import java.util.List;
 import java.util.Optional;
 
 public class Multiblocks extends PersistentState {
-	
-	private final List<Multiblock> ingame_multiblocks = new ArrayList<>();
-	private final List<Multiblock> toRemoveMultiblocks = new ArrayList<>(); // Will maybe cause a bug if server stop on remove
-	private final World world;
-	static private final String WORLD_NOT_SERVER_ERR = "World cannot be client";
-	
+
+    private final List<Multiblock> ingame_multiblocks = new ArrayList<>();
+    private final List<Multiblock> toRemoveMultiblocks = new ArrayList<>(); // Will maybe cause a bug if server stop on remove
+    private final World world;
+    static private final String WORLD_NOT_SERVER_ERR = "World cannot be client";
+    public static final Codec<Multiblocks> CODEC = RecordCodecBuilder.create(
+            instance -> instance.group()
+    );
+
 	public Multiblocks(World world) {
 		this.world = world;
 	}

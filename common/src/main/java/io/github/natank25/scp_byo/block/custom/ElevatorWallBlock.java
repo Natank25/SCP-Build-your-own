@@ -16,11 +16,6 @@ public class ElevatorWallBlock extends Block {
 	}
 	
 	@Override
-	public PistonBehavior getPistonBehavior(BlockState state) {
-		return state.get(STICKY) ? PistonBehavior.NORMAL : PistonBehavior.PUSH_ONLY;
-	}
-	
-	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
 		builder.add(STICKY);
 	}

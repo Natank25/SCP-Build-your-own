@@ -2,8 +2,11 @@ package io.github.natank25.scp_byo.mixins;
 
 import dev.architectury.networking.NetworkManager;
 import io.github.natank25.scp_byo.entity.custom.ScpEntity;
+import io.github.natank25.scp_byo.networking.GrantAdvancementPayload;
+import io.github.natank25.scp_byo.networking.UpdatePlayerDataPayload;
 import io.github.natank25.scp_byo.persistent_data.player.PerPlayerData;
 import io.github.natank25.scp_byo.utils.ModConstants;
+import io.github.natank25.scp_byo.utils.Utils;
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -30,14 +33,9 @@ public class EntityRendererDispatcherMixin {
 		if (!PerPlayerData.getPlayerData(player).hasSeenScp() && entity instanceof ScpEntity && player.canSee(entity)) {
 			
 			PerPlayerData.getPlayerData(player).setHasSeenScp(true);
-			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-			NetworkManager.sendToServer(ModConstants.Networking.UPDATE_PLAYER_DATA, buf);
+			NetworkManager.sendToServer(new UpdatePlayerDataPayload());
 			
-			buf = new PacketByteBuf(Unpooled.buffer());
-			buf.writeString("1st_scp");
-			buf.writeIdentifier(new Identifier("scp_byo/see_1st_scp"));
-			
-			NetworkManager.sendToServer(ModConstants.Networking.GRANT_ADVANCEMENT_PACKET_ID, buf);
+			NetworkManager.sendToServer(new GrantAdvancementPayload("1st_scp", Utils.newIdentifier("see_1st_scp")));
 		}
 		
 		
