@@ -2,41 +2,81 @@ package io.github.natank25.scp_byo.persistent_data.multiblock;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.architectury.networking.NetworkManager;
 import io.github.natank25.scp_byo.Scp_byo;
+import io.github.natank25.scp_byo.persistent_data.ScpByoDataManager;
 import io.github.natank25.scp_byo.utils.ModConstants;
+import io.github.natank25.scp_byo.utils.Utils;
 import io.netty.buffer.Unpooled;
 import net.minecraft.block.pattern.BlockPattern;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.*;
 import net.minecraft.world.PersistentState;
+import net.minecraft.world.PersistentStateType;
 import net.minecraft.world.World;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 public class Multiblocks extends PersistentState {
 
     private final List<Multiblock> ingame_multiblocks = new ArrayList<>();
-    private final List<Multiblock> toRemoveMultiblocks = new ArrayList<>(); // Will maybe cause a bug if server stop on remove
+    private final List<Multiblock> toRemoveMultiblocks = new ArrayList<>(); // Will maybe cause a bug if server stop on remove: store in the file
     private final World world;
     static private final String WORLD_NOT_SERVER_ERR = "World cannot be client";
-    public static final Codec<Multiblocks> CODEC = RecordCodecBuilder.create(
-            instance -> instance.group()
-    );
+
+	private static final Function<Context, Codec<Multiblocks>> CODEC_GETTER = context -> RecordCodecBuilder.create(
+			instance -> instance.group(
+					Multiblock.MultiblockData.CODEC.listOf().fieldOf("mutliblocks").forGetter(Multiblocks::pack)
+			).apply(instance, multiblockData -> new Multiblocks(context.world(), multiblockData))
+	);
+
+	private static final PersistentStateType<Multiblocks> MULTIBLOCKS_TYPE = new PersistentStateType<>(
+			ScpByoDataManager.getFullKey(ScpByoDataManager.MULTIBLOCKS_KEY),
+			context -> new Multiblocks(context.getWorldOrThrow()),
+			CODEC_GETTER,
+			null
+	);
+
+	private List<Multiblock.MultiblockData> pack() {
+		List<Multiblock.MultiblockData> list = new ArrayList<>();
+		this.ingame_multiblocks.forEach(multiblock -> {
+			Multiblock.MultiblockData data = new Multiblock.MultiblockData(
+					BlockPatterns.getIdForMultiblockClass(multiblock.getClass()).orElseThrow(),
+					Arrays.stream(multiblock.getFrontTopLeftPosAsArray()),
+					Utils.Vec3IToStream(multiblock.box.getDimensions()),
+					multiblock.getNbt());
+		});
+		return list;
+	}
+
+	public Multiblocks(World world, List<Multiblock.MultiblockData> multiblocks){
+		this.world = world;
+
+		multiblocks.forEach(data -> {
+			Identifier id = data.id();
+			int[] frontTopLeftArr = data.pos().toArray();
+			int[] size = data.size().toArray();
+			BlockPos frontTopLeftPos = new BlockPos(frontTopLeftArr[0], frontTopLeftArr[1], frontTopLeftArr[2]);
+
+			BlockPattern.Result result = new BlockPattern.Result(frontTopLeftPos, Direction.SOUTH, Direction.DOWN, BlockPattern.makeCache(world, false), size[0], size[1], size[2]);
+
+			this.assembleMultiblock(id, result).ifPresent(multiblock -> multiblock.readFromNbt(data.data()));
+
+		});
+	}
 
 	public Multiblocks(World world) {
 		this.world = world;
 	}
-	
-	//region Static isContaining
-	
+
 	private static boolean isContaining(BlockBox box, double x, double y, double z) {
 		return x >= box.getMinX() && x <= box.getMaxX() && z >= box.getMinZ() && z <= box.getMaxZ() && y >= box.getMinY() && y <= box.getMaxY();
 	}
@@ -44,34 +84,17 @@ public class Multiblocks extends PersistentState {
 	private static boolean isContaining(BlockBox box, Vec3d pos) {
 		return isContaining(box, pos.x, pos.y, pos.z);
 	}
-	
-	//endregion
-	
-	//region Adding a multiblock
-	
+
 	public static Multiblocks get(World world) {
-		return world.scp_byoGetDataManager().getMultiblocks();
+		if (world.isClient())
+			return null;
+		return ((ServerWorld) world).getPersistentStateManager().getOrCreate(MULTIBLOCKS_TYPE);
 	}
-	
-	public static Multiblocks createFromNbt(NbtCompound nbt, World world) {
-		Multiblocks multiblocks = new Multiblocks(world);
-		NbtCompound multiblocksNbt = nbt.getCompound("Multiblocks");
-		int multiblocksLength = multiblocksNbt.getSize();
-		
-		for (int i = 1; i <= multiblocksLength; i++) {
-			NbtCompound multiblockNbt = multiblocksNbt.getCompound("Multiblock" + i);
-			
-			Identifier id = new Identifier(multiblockNbt.getString("Identifier"));
-			int[] frontTopLeftArr = multiblockNbt.getIntArray("GlobalBottomLeftPos");
-			int[] size = multiblockNbt.getIntArray("Size");
-			BlockPos frontTopLeftPos = new BlockPos(frontTopLeftArr[0], frontTopLeftArr[1], frontTopLeftArr[2]);
-			
-			BlockPattern.Result result = new BlockPattern.Result(frontTopLeftPos, Direction.SOUTH, Direction.DOWN, BlockPattern.makeCache(world, false), size[0], size[1], size[2]);
-			
-			multiblocks.assembleMultiblock(id, result).ifPresent(multiblock -> multiblock.readFromNbt(multiblockNbt.getCompound("Nbt")));
-		}
-		return multiblocks;
+
+	public static Multiblocks get(ServerWorld world) {
+		return world.getPersistentStateManager().getOrCreate(MULTIBLOCKS_TYPE);
 	}
+
 	
 	public <T extends Multiblock> void add(T multiblock) {
 		this.ingame_multiblocks.add(multiblock);
@@ -91,15 +114,11 @@ public class Multiblocks extends PersistentState {
 	public List<Multiblock> getList() {
 		return this.ingame_multiblocks;
 	}
-	
-	//endregion
-	
+
 	public Optional<? extends Multiblock> getMultiblock(BlockPos pos) {
 		return this.getMultiblock(pos.toCenterPos());
 	}
-	
-	//region Syncing a multiblock
-	
+
 	public Optional<? extends Multiblock> getMultiblock(Vec3d pos) {
 		for (Multiblock multiblock : this.ingame_multiblocks) {
 			if (isContaining(multiblock.getBox(), pos)) {
@@ -127,11 +146,7 @@ public class Multiblocks extends PersistentState {
 			this.syncWithAllClients(buf);
 		}
 	}
-	
-	//endregion
-	
-	//region Removing a multiblock
-	
+
 	public void syncWithAllClients(PacketByteBuf buf) {
 		if (this.world.isClient) {
 			Scp_byo.LOGGER.error(WORLD_NOT_SERVER_ERR);
@@ -140,17 +155,13 @@ public class Multiblocks extends PersistentState {
 		if (this.world.getServer() != null)
 			this.syncWithClients(this.world.getServer().getPlayerManager().getPlayerList(), buf);
 	}
-
-	//endregion
-	
-	//region Getters
 	
 	public void syncWithClients(Iterable<ServerPlayerEntity> players, PacketByteBuf buf) {
 		if (this.world.isClient) {
 			Scp_byo.LOGGER.error(WORLD_NOT_SERVER_ERR);
 			return;
 		}
-		NetworkManager.sendToPlayers(players, ModConstants.Networking.MULTIBLOCK_UPDATE_PACKET_ID, buf);
+		//TODO: NetworkManager.sendToPlayers(players, ModConstants.Networking.MULTIBLOCK_UPDATE_PACKET_ID, buf);
 	}
 	
 	public void tick() {
@@ -168,10 +179,10 @@ public class Multiblocks extends PersistentState {
 		if (this.getMultiblock(pos).isPresent()) return Optional.empty();
 		
 		for (ScpBYOBlockPattern pattern : BlockPatterns.getAll()) {
-			BlockPattern blockPattern = pattern.getBlockPattern();
+			BlockPattern blockPattern = pattern.blockPattern();
 			BlockPattern.Result result = blockPattern.searchAround(this.world, pos);
 			if (null != result) {
-				Optional<Multiblock> multiblock = this.assembleMultiblock(pattern.getId(), result);
+				Optional<Multiblock> multiblock = this.assembleMultiblock(pattern.id(), result);
 				multiblock.ifPresent(Multiblock::create);
 				return multiblock;
 			}
@@ -183,10 +194,10 @@ public class Multiblocks extends PersistentState {
 		if (this.getMultiblock(pos).isPresent()) return Optional.empty();
 		
 		for (ScpBYOBlockPattern pattern : BlockPatterns.getAll()) {
-			BlockPattern blockPattern = pattern.getBlockPattern();
+			BlockPattern blockPattern = pattern.blockPattern();
 			BlockPattern.Result result = blockPattern.testTransform(this.world, pos, forward, up);
 			if (null != result) {
-				return this.assembleMultiblock(pattern.getId(), result);
+				return this.assembleMultiblock(pattern.id(), result);
 			}
 		}
 		return Optional.empty();
@@ -197,32 +208,8 @@ public class Multiblocks extends PersistentState {
 		var multiblock = this.getMultiblock(pos);
 		multiblock.ifPresent(this::remove);
 	}
-	
-	//endregion
-	
-	//region Nbt management
-	
-	@Override
-	public NbtCompound writeNbt(NbtCompound nbt) {
-		NbtCompound multiblocksNbt = new NbtCompound();
-		int multiblockNumber = 0;
-		for (Multiblock multiblock : this.ingame_multiblocks) {
-			multiblockNumber++;
-			NbtCompound multiblockNbt = new NbtCompound();
-			multiblockNbt.putString("Identifier", BlockPatterns.getIdForMultiblockClass(multiblock.getClass()).orElseThrow().toString());
-			multiblockNbt.putIntArray("GlobalBottomLeftPos", multiblock.getGlobalBottomLeftPosAsArray());
-			Vec3i size = multiblock.box.getDimensions();
-			multiblockNbt.putIntArray("Size", List.of(size.getX(), size.getY(), size.getZ()));
-			
-			multiblockNbt.put("Nbt", multiblock.getNbt());
-			multiblocksNbt.put("Multiblock" + multiblockNumber, multiblockNbt);
-			
-		}
-		
-		nbt.put("Multiblocks", multiblocksNbt);
-		return nbt;
-	}
-	
+
+
 	private Optional<Multiblock> assembleMultiblock(Identifier id, BlockPattern.Result result) {
 		Optional<Class<? extends Multiblock>> mblockOptionalClass = BlockPatterns.getMultiblockClassForId(id);
 		Class<? extends Multiblock> mblockClass = mblockOptionalClass.orElseThrow(() -> new RuntimeException("Class for block pattern id " + id + " not found"));
@@ -240,6 +227,4 @@ public class Multiblocks extends PersistentState {
 		}
 		return Optional.empty();
 	}
-	
-	//endregion
 }

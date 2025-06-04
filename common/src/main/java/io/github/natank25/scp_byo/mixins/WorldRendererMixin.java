@@ -1,8 +1,10 @@
 package io.github.natank25.scp_byo.mixins;
 
 import io.github.natank25.scp_byo.persistent_data.multiblock.Multiblock;
+import io.github.natank25.scp_byo.persistent_data.multiblock.Multiblocks;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexRendering;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
@@ -23,26 +25,25 @@ public abstract class WorldRendererMixin {
 	
 	@Shadow
 	private @Nullable ClientWorld world;
-	
-	@Shadow
-	private static void drawCuboidShapeOutline(MatrixStack matrices, VertexConsumer vertexConsumer, VoxelShape shape, double offsetX, double offsetY, double offsetZ, float red, float green, float blue, float alpha) {
-	}
-	
+
 	@Inject(method = "drawBlockOutline", at = @At("HEAD"), cancellable = true)
-	private void drawBlockOutlineMixin(MatrixStack matrices, VertexConsumer vertexConsumer, Entity entity, double cameraX, double cameraY, double cameraZ, BlockPos pos, BlockState state, CallbackInfo ci) {
+	private void drawBlockOutlineMixin(MatrixStack matrices, VertexConsumer vertexConsumer, Entity entity, double cameraX, double cameraY, double cameraZ, BlockPos pos, BlockState state, int color, CallbackInfo ci) {
 		if (world == null)
 			return;
-		Optional<? extends Multiblock> optionalMultiblock = world.scp_byoGetDataManager().getMultiblocks().getMultiblock(pos);
+		Multiblocks multiblocks = Multiblocks.get(world);
+		if (multiblocks == null)
+			return;
+		Optional<? extends Multiblock> optionalMultiblock = multiblocks.getMultiblock(pos);
 		if (optionalMultiblock.isPresent()) {
 			Multiblock multiblock = optionalMultiblock.get();
-			drawCuboidShapeOutline(
+			VertexRendering.drawOutline(
 					matrices,
 					vertexConsumer,
 					multiblock.getShape(),
 					multiblock.getGlobalBottomLeftVec().getX() - cameraX,
 					multiblock.getGlobalBottomLeftVec().getY() - cameraY,
 					multiblock.getGlobalBottomLeftVec().getZ() - cameraZ,
-					0.0F, 0.0F, 0.0F, 0.4F
+					color
 			);
 			ci.cancel();
 		}

@@ -1,59 +1,35 @@
 package io.github.natank25.scp_byo.advancements;
 
-import com.google.gson.JsonObject;
-import io.github.natank25.scp_byo.entity.custom.ScpEntity;
-import io.github.natank25.scp_byo.utils.Utils;
+import com.mojang.serialization.Codec;
 import net.minecraft.advancement.criterion.AbstractCriterion;
-import net.minecraft.advancement.criterion.AbstractCriterionConditions;
-import net.minecraft.entity.EntityType;
-import net.minecraft.predicate.entity.AdvancementEntityPredicateDeserializer;
-import net.minecraft.predicate.entity.AdvancementEntityPredicateSerializer;
-import net.minecraft.predicate.entity.EntityPredicate;
-import net.minecraft.registry.Registries;
+import net.minecraft.predicate.entity.LootContextPredicate;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
+
+import java.util.Optional;
 
 public class TrapScpCriterion extends AbstractCriterion<TrapScpCriterion.Conditions> {
-	
-	static final Identifier ID = Utils.newIdentifier("trap_scp");
-	
+
 	@Override
-	public Identifier getId() {
-		return ID;
+	public Codec<Conditions> getConditionsCodec() {
+		return Conditions.CODEC;
 	}
-	
-	public void trigger(ServerPlayerEntity player, EntityType<? extends ScpEntity> scpType) {
-		this.trigger(player, conditions -> conditions.requirementMet(scpType));
+
+	public void trigger(ServerPlayerEntity player) {
+		trigger(player, Conditions::requirementsMet);
 	}
-	
-	@Override
-	protected Conditions conditionsFromJson(JsonObject obj, EntityPredicate.Extended playerPredicate, AdvancementEntityPredicateDeserializer predicateDeserializer) {
-		EntityType<?> scpType = Registries.ENTITY_TYPE.get(new Identifier(obj.get("scp_type").getAsString()));
-		if (!(scpType.getBaseClass().isAssignableFrom(ScpEntity.class))) {
-			throw new IllegalArgumentException("Entity type is not an ScpEntity: " + scpType);
-		}
-        //noinspection unchecked
-        return new Conditions((EntityType<? extends ScpEntity>) scpType);
-	}
-	
-	public static class Conditions extends AbstractCriterionConditions {
-		final EntityType<? extends ScpEntity> scpType;
-		
-		public Conditions(EntityType<? extends ScpEntity> scpType) {
-			super(ID, EntityPredicate.Extended.EMPTY);
-			
-			this.scpType = scpType;
-		}
-		
+
+	public record Conditions(Optional<LootContextPredicate> playerPredicate) implements AbstractCriterion.Conditions {
+
+		public static Codec<Conditions> CODEC = LootContextPredicate.CODEC.optionalFieldOf("player")
+				.xmap(Conditions::new, Conditions::player).codec();
+
 		@Override
-		public JsonObject toJson(AdvancementEntityPredicateSerializer predicateSerializer) {
-			JsonObject json = super.toJson(predicateSerializer);
-			json.addProperty("scp_type", Registries.ENTITY_TYPE.getId(this.scpType).toString());
-			return json;
+		public Optional<LootContextPredicate> player() {
+			return playerPredicate;
 		}
-		
-		boolean requirementMet(EntityType<? extends ScpEntity> scpType) {
-			return this.scpType == scpType;
+
+		public boolean requirementsMet() {
+			return true; // AbstractCriterion#trigger helpfully checks the playerPredicate for us.
 		}
 	}
 }

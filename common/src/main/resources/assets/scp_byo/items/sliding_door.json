@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "scp_byo:item/sliding_door",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

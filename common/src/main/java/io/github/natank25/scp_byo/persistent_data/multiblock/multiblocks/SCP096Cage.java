@@ -1,7 +1,6 @@
 package io.github.natank25.scp_byo.persistent_data.multiblock.multiblocks;
 
-import io.github.natank25.scp_byo.advancements.ModCriterions;
-import io.github.natank25.scp_byo.entity.ModEntities;
+import io.github.natank25.scp_byo.advancements.ModCriteria;
 import io.github.natank25.scp_byo.entity.custom.Scp_096Entity;
 import io.github.natank25.scp_byo.persistent_data.multiblock.Multiblock;
 import net.minecraft.block.AbstractBlock;
@@ -66,7 +65,7 @@ public class SCP096Cage extends Multiblock {
 	public void create() {
 		if (!this.getWorld().isClient() && this.containsScp()) {
 			for (PlayerEntity player : this.world.getEntitiesByClass(PlayerEntity.class, this.insideBox.offset(this.centerBlockPos).expand(15), player -> true)) {
-				ModCriterions.TRAP_SCP.trigger((ServerPlayerEntity) player, ModEntities.SCP_096.get());
+				ModCriteria.TRAP_SCP.trigger((ServerPlayerEntity) player);
 			}
 		}
 	}
@@ -111,10 +110,14 @@ public class SCP096Cage extends Multiblock {
 	public void readFromNbt(NbtCompound nbt) {
 		
 		for (int i = 0; i < nbt.getSize(); i++) {
-			NbtCompound blockNbt = nbt.getCompound("block" + i);
-			int damage = blockNbt.getInt("damage");
+			NbtCompound blockNbt = nbt.getCompoundOrEmpty("block" + i);
+			if (blockNbt.isEmpty())
+				break;
+			int damage = blockNbt.getInt("damage", 0);
 			this.totalDamage += damage;
-			int[] posAsArray = blockNbt.getIntArray("pos");
+			int[] posAsArray = blockNbt.getIntArray("pos").orElse(null);
+			if (posAsArray == null)
+				break;
 			BlockPos pos = new BlockPos(posAsArray[0], posAsArray[1], posAsArray[2]);
 			
 			this.blockPosToProgress.put(pos, damage);
@@ -132,15 +135,15 @@ public class SCP096Cage extends Multiblock {
 		}
 		
 		if (player.getInventory().contains(new ItemStack(Items.IRON_BLOCK))) {
-			int totalIronBlocks = player.getInventory().main.stream().filter(stack -> stack.getItem() == Items.IRON_BLOCK).mapToInt(ItemStack::getCount).sum();
+			int totalIronBlocks = player.getInventory().getMainStacks().stream().filter(stack -> stack.getItem() == Items.IRON_BLOCK).mapToInt(ItemStack::getCount).sum();
 			
 			if (totalIronBlocks >= requiredIron) {
 				for (BlockPos blockPos : this.blockPosToProgress.keySet()) {
 					setBlockBreakingInfo(blockPos, -1);
 				}
 				this.blockPosToProgress.clear();
-				player.getInventory().remove(itemStack -> itemStack.isItemEqual(new ItemStack(Items.IRON_BLOCK)), requiredIron, player.playerScreenHandler.getCraftingInput());
-				this.world.playSoundAtBlockCenter(this.centerBlockPos, SoundEvents.BLOCK_ANVIL_USE, SoundCategory.BLOCKS, 1.5f, 1, true);
+				player.getInventory().remove(itemStack -> itemStack.isOf(Items.IRON_BLOCK), requiredIron, player.playerScreenHandler.getCraftingInput());
+				this.world.playSoundAtBlockCenterClient(this.centerBlockPos, SoundEvents.BLOCK_ANVIL_USE, SoundCategory.BLOCKS, 1.5f, 1, true);
 				this.totalDamage = 0;
 				return true;
 			}

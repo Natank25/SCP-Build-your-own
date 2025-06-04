@@ -32,7 +32,7 @@ public class SCP096AttackTargetGoal extends Goal {
 	public boolean canStart() {
 		if (null == this.scp096.getTarget()) return false;
 		
-		long l = this.scp096.world.getTime();
+		long l = this.scp096.getWorld().getTime();
 		
 		if (!this.scp096.isChasing()) return false;
 		if (l - this.lastUpdateTime < 20L) return false;
@@ -82,14 +82,14 @@ public class SCP096AttackTargetGoal extends Goal {
 		this.scp096.setAttacking(false);
 		this.scp096.getNavigation().stop();
 	}
-	
+
 	@Override
 	public void tick() {
 		LivingEntity target = this.scp096.getTarget();
         if (null == target) return;
         this.scp096.setSCP_Pose(this.scp096.getNavigation().isIdle() || this.scp096.getVelocity().length() < 0.1 ? Scp_096Entity.SCP096Pose.NOT_MOVING : Scp_096Entity.SCP096Pose.CHASING);
         this.scp096.getLookControl().lookAt(target, 30.0F, 30.0F);
-        double d = this.scp096.getSquaredDistanceToAttackPosOf(target);
+        double d = this.scp096.getAttackDistanceScalingFactor(target);
         this.updateCountdownTicks = Math.max(this.updateCountdownTicks - 1, 0);
         //noinspection OverlyComplexBooleanExpression
         if (this.scp096.getVisibilityCache().canSee(target) && this.updateCountdownTicks <= 0 && (this.targetX == 0.0 && this.targetY == 0.0 && this.targetZ == 0.0 || target.squaredDistanceTo(this.targetX, this.targetY, this.targetZ) >= 1.0 || this.scp096.getRandom().nextFloat() < 0.05F)) {
@@ -119,7 +119,7 @@ public class SCP096AttackTargetGoal extends Goal {
 		if (squaredDistance <= d) {
 			this.scp096.swingHand(Hand.MAIN_HAND);
 			
-			this.scp096.tryAttack(target);
+			this.scp096.tryAttack(getServerWorld(this.scp096), target);
 			this.scp096.playSound(ModSounds.SCP096_KILL.get(), 2, 1);
 			
 			this.killed = false;

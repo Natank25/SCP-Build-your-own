@@ -1,42 +1,22 @@
 package io.github.natank25.scp_byo;
 
-import com.google.common.base.Suppliers;
-import dev.architectury.networking.NetworkManager;
 import dev.architectury.platform.Platform;
 import dev.architectury.registry.client.level.entity.EntityRendererRegistry;
-import dev.architectury.registry.registries.RegistrarManager;
 import dev.architectury.utils.Env;
 import dev.architectury.utils.EnvExecutor;
-import io.github.natank25.scp_byo.advancements.ModCriterions;
+import io.github.natank25.scp_byo.advancements.ModCriteria;
 import io.github.natank25.scp_byo.block.ModBlocks;
 import io.github.natank25.scp_byo.block.entity.ModBlocksEntities;
 import io.github.natank25.scp_byo.commands.ModCommands;
 import io.github.natank25.scp_byo.entity.ModEntities;
 import io.github.natank25.scp_byo.entity.client.scp_096.Scp096Renderer;
-import io.github.natank25.scp_byo.events.WorldSyncCallback;
 import io.github.natank25.scp_byo.item.ModItems;
-import io.github.natank25.scp_byo.persistent_data.multiblock.Multiblocks;
-import io.github.natank25.scp_byo.persistent_data.player.PerPlayerData;
 import io.github.natank25.scp_byo.sounds.ModSounds;
-import io.github.natank25.scp_byo.utils.ModConstants.Networking;
 import io.github.natank25.scp_byo.world.gen.ModWorldGeneration;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import software.bernie.geckolib.GeckoLib;
-
-import java.util.function.Supplier;
 
 public class Scp_byo {
     public static final String MOD_ID = "scp_byo";
@@ -48,12 +28,13 @@ public class Scp_byo {
         ModSounds.registerModSounds();
 
         ModBlocks.registerModBlocks();
+        ModItems.registerItemGroups();
         ModItems.registerItems();
 
         ModEntities.registerEntities();
         ModBlocksEntities.registerAllBlockEntity();
 
-        ModCriterions.registerModCriterions();
+        ModCriteria.registerModCriteria();
 
         ModCommands.registerCommands();
         ModGamerules.registerModGamerules();
@@ -68,17 +49,16 @@ public class Scp_byo {
 
         EnvExecutor.runInEnv(Env.CLIENT, () -> Client::onInitializeClient);
 
-        GeckoLib.initialize();
-
         if (Platform.isDevelopmentEnvironment())
                 Scp_byo.LOGGER.debug("Hi devs!");
     }
 
     private static void RegisterModEvents() {
-        WorldSyncCallback.EVENT.register((player, world) -> world.scp_byoGetDataManager().sendLoginPacket(player));
+        //TODO WorldSyncCallback.EVENT.register((player, world) -> world.scp_byoGetDataManager().sendLoginPacket(player));
     }
 
     public static void RegisterCommonNetwork() {
+        /* TODO: Change to CODECS
         NetworkManager.registerReceiver(NetworkManager.c2s(), Networking.GRANT_ADVANCEMENT_PACKET_ID, (buf, context) -> {
 
             String criterionName = buf.readString();
@@ -93,9 +73,11 @@ public class Scp_byo {
             ServerPlayerEntity player = (ServerPlayerEntity) context.getPlayer();
             PerPlayerData.getPlayerData(player).setHasSeenScp(true);
         });
+         */
     }
 
     public static void RegisterClientNetwork() {
+        /* TODO: Change to CODECS
         NetworkManager.registerReceiver(NetworkManager.s2c(), Networking.MULTIBLOCK_UPDATE_PACKET_ID, ((buf, context) -> {
             RegistryKey<World> worldRegistryKey = buf.readRegistryKey(RegistryKeys.WORLD);
             PlayerEntity player = context.getPlayer();
@@ -133,6 +115,7 @@ public class Scp_byo {
                 client.world.scp_byoGetDataManager().update(nbt, client.world);
             });
         });
+        */
     }
 
     @Environment(EnvType.CLIENT)

@@ -31,13 +31,13 @@ public enum BlockPatterns {
 	}
 	
 	public static Optional<Class<? extends Multiblock>> getMultiblockClassForId(Identifier id) {
-		return BLOCK_PATTERNS.stream().filter(scpBYOBlockPattern -> scpBYOBlockPattern.getId().equals(id)).findFirst().map(ScpBYOBlockPattern::getMultiblockClass);
+		return BLOCK_PATTERNS.stream().filter(scpBYOBlockPattern -> scpBYOBlockPattern.id().equals(id)).findFirst().map(ScpBYOBlockPattern::multiblockClass);
 	}
 
 	public static Optional<Identifier> getIdForMultiblockClass(Class<? extends Multiblock> multiblockClass) {
 		for (ScpBYOBlockPattern pattern : BLOCK_PATTERNS) {
-			if (pattern.getMultiblockClass().equals(multiblockClass)) {
-				return Optional.of(pattern.getId());
+			if (pattern.multiblockClass().equals(multiblockClass)) {
+				return Optional.of(pattern.id());
 			}
 		}
 		return Optional.empty();

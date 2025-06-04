@@ -1,27 +1,32 @@
 package io.github.natank25.scp_byo.block.entity.client;
 
-import io.github.natank25.scp_byo.Scp_byo;
 import io.github.natank25.scp_byo.block.custom.SlidingDoor;
 import io.github.natank25.scp_byo.block.entity.SlidingDoorBlockEntity;
+import io.github.natank25.scp_byo.utils.Utils;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.util.Identifier;
+import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.model.GeoModel;
+import software.bernie.geckolib.renderer.base.GeoRenderState;
 
 class SlidingDoorModel extends GeoModel<SlidingDoorBlockEntity> {
+
+	@Override
+	public Identifier getModelResource(GeoRenderState geoRenderState) {
+
+		BlockState blockstate = geoRenderState.getGeckolibData(DataTickets.BLOCKSTATE);
+		assert blockstate != null;
+		return blockstate.get(SlidingDoor.HALF) == DoubleBlockHalf.LOWER ? Utils.newIdentifier("sliding_door_lower") : Utils.newIdentifier("sliding_door_upper");
+	}
+
 	@Override
 	public Identifier getAnimationResource(SlidingDoorBlockEntity animatable) {
-		return new Identifier(Scp_byo.MOD_ID, "animations/sliding_door.animation.json");
-		
+		return Utils.newIdentifier("sliding_door");
 	}
-	
+
 	@Override
-	public Identifier getModelResource(SlidingDoorBlockEntity animatable) {
-		return animatable.getCachedState().get(SlidingDoor.HALF) == DoubleBlockHalf.LOWER ? new Identifier(Scp_byo.MOD_ID, "geo/sliding_door_lower.geo.json") : new Identifier(Scp_byo.MOD_ID, "geo/sliding_door_upper.geo.json");
-	}
-	
-	@Override
-	public Identifier getTextureResource(SlidingDoorBlockEntity animatable) {
-		return new Identifier(Scp_byo.MOD_ID, "textures/block/sliding_door.png");
-		
+	public Identifier getTextureResource(GeoRenderState geoRenderState) {
+		return Utils.newIdentifier("textures/block/sliding_door.png");
 	}
 }

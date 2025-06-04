@@ -1,9 +1,11 @@
 package io.github.natank25.scp_byo.mixins;
 
 import dev.architectury.networking.NetworkManager;
+import io.github.natank25.scp_byo.entity.ModEntities;
 import io.github.natank25.scp_byo.entity.custom.ScpEntity;
 import io.github.natank25.scp_byo.networking.GrantAdvancementPayload;
 import io.github.natank25.scp_byo.networking.UpdatePlayerDataPayload;
+import io.github.natank25.scp_byo.persistent_data.ScpByoDataManager;
 import io.github.natank25.scp_byo.persistent_data.player.PerPlayerData;
 import io.github.natank25.scp_byo.utils.ModConstants;
 import io.github.natank25.scp_byo.utils.Utils;
@@ -12,6 +14,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
+import net.minecraft.client.render.entity.EntityRenderer;
+import net.minecraft.client.render.entity.state.EntityRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.PacketByteBuf;
@@ -25,11 +29,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class EntityRendererDispatcherMixin {
 	
 	
-	@Inject(method = "render", at = @At("RETURN"))
-	private <E extends Entity> void render(E entity, double x, double y, double z, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
+	@Inject(method = "render(Lnet/minecraft/client/render/entity/state/EntityRenderState;DDDLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/client/render/entity/EntityRenderer;)V", at = @At("RETURN"))
+	private <S extends EntityRenderState> void render(S state, double x, double y, double z, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, EntityRenderer<?, S> renderer, CallbackInfo ci) {
 		
 		ClientPlayerEntity player = MinecraftClient.getInstance().player;
 		assert player != null;
+		/* TODO
 		if (!PerPlayerData.getPlayerData(player).hasSeenScp() && entity instanceof ScpEntity && player.canSee(entity)) {
 			
 			PerPlayerData.getPlayerData(player).setHasSeenScp(true);
@@ -37,7 +42,7 @@ public class EntityRendererDispatcherMixin {
 			
 			NetworkManager.sendToServer(new GrantAdvancementPayload("1st_scp", Utils.newIdentifier("see_1st_scp")));
 		}
-		
+		 */
 		
 	}
 }

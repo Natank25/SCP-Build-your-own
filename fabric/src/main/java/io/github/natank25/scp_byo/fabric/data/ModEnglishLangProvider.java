@@ -10,10 +10,12 @@ import net.minecraft.registry.RegistryWrapper;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.concurrent.CompletableFuture;
 
 public class ModEnglishLangProvider extends FabricLanguageProvider {
-    public ModEnglishLangProvider(FabricDataOutput dataOutput) {
-        super(dataOutput, "en_us");
+
+    public ModEnglishLangProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+        super(dataOutput, registryLookup);
     }
 
     @Override
@@ -36,7 +38,7 @@ public class ModEnglishLangProvider extends FabricLanguageProvider {
         translationBuilder.add(ModBlocks.KEYCARD_READER.get(), "Keycard Reader");
         translationBuilder.add(ModBlocks.ELEVATOR_FLOOR.get(), "Elevator Floor");
         translationBuilder.add(ModBlocks.ELEVATOR_WALL.get(), "Elevator Wall");
-        translationBuilder.add(ModBlocks.FONDATION_GLASS.get(), "Fondation Glass");
+        translationBuilder.add(ModBlocks.FOUNDATION_GLASS.get(), "Foundation Glass");
         translationBuilder.add(ModBlocks.OFFICE_WALL.get(), "Office Wall");
 
         translationBuilder.add(ModEntities.SCP_096.get(), "SCP 096");
