@@ -12,6 +12,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.particle.ParticleEffect;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.*;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.World;
@@ -19,6 +20,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.IntStream;
 
 /**
  * An instance of a BlockPattern in the world
@@ -42,11 +46,6 @@ public class Multiblock {
 	private ParticleEffect spawnParticles = DustParticleEffect.DEFAULT;
 	private ParticleEffect breakParticles = DustParticleEffect.DEFAULT;
 	private double particleOffset = 0.15;
-
-    public static final Codec<Multiblock> CODEC = RecordCodecBuilder.create(instance ->
-            instance.group(
-
-            ).apply(instance, Multiblock::new));
 	
 	public Multiblock(@NotNull BlockPattern.Result result, World world) {
 		this.forward = result.getForwards();
@@ -71,8 +70,7 @@ public class Multiblock {
 		
 		this.spawnOutlineParticles(this.spawnParticles);
 	}
-	
-	
+
 	//region Update packets
 	
 	public final Vec3d add(Vec3d origin, double offsetLeft, double offsetDown, double offsetForwards) {
@@ -260,11 +258,11 @@ public class Multiblock {
 	//endregion
 	
 	public final void selfDisassemble() {
-		Multiblocks.get(this.world).tryDisassemble(this.globalBottomLeftPos);
+		Objects.requireNonNull(Multiblocks.get(this.world)).tryDisassemble(this.globalBottomLeftPos);
 	}
 	
 	public final void sendGenericUpdatePacket(PacketByteBuf buf) {
-		Multiblocks.get(this.getWorld()).syncWithAllClients(buf);
+		Objects.requireNonNull(Multiblocks.get(this.getWorld())).syncWithAllClients(buf);
 	}
 	
 	public final void spawnOutlineParticles(ParticleEffect particle) {
@@ -276,6 +274,20 @@ public class Multiblock {
 	}
 	
 	public void tick() {
-	
+
+	}
+
+	public record MultiblockData(Identifier id, IntStream pos, IntStream size, NbtCompound data) {
+		public MultiblockData(Identifier id, IntStream pos, IntStream size) {
+			this(id, pos, size, null);
+		}
+
+		public static final Codec<MultiblockData> CODEC = RecordCodecBuilder.create(instance ->
+				instance.group(
+						Identifier.CODEC.fieldOf("id").forGetter(MultiblockData::id),
+						Codec.INT_STREAM.fieldOf("pos").forGetter(MultiblockData::pos),
+						Codec.INT_STREAM.fieldOf("size").forGetter(MultiblockData::size),
+						NbtCompound.CODEC.optionalFieldOf("data", null).forGetter(MultiblockData::data)
+				).apply(instance, MultiblockData::new));
 	}
 }

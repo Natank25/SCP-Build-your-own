@@ -1,64 +1,64 @@
 package io.github.natank25.scp_byo.item;
 
-import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.architectury.registry.CreativeTabRegistry;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
-import io.github.natank25.scp_byo.Scp_byo;
 import io.github.natank25.scp_byo.block.ModBlocks;
 import io.github.natank25.scp_byo.entity.ModEntities;
 import io.github.natank25.scp_byo.item.custom.SCP096SpawnEggItem;
+import io.github.natank25.scp_byo.item.custom.SlidingDoorItem;
 import io.github.natank25.scp_byo.item.custom.Wrench;
 import io.github.natank25.scp_byo.utils.Utils;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 import static io.github.natank25.scp_byo.Scp_byo.MOD_ID;
 
 public class ModItems {
 	
 	public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(MOD_ID, RegistryKeys.ITEM);
+	public static final DeferredRegister<ItemGroup> ITEM_GROUPS = DeferredRegister.create(MOD_ID, RegistryKeys.ITEM_GROUP);
 
-	public static final ItemGroup SCP_FONDATION_ITEM_GROUP = CreativeTabRegistry.create(Text.translatable("itemGroup.scp_byo.main_creative_tab"), () -> new ItemStack(ModBlocks.OFFICE_WALL.get().asItem()));
+	public static final RegistrySupplier<ItemGroup> SCP_FOUNDATION_ITEM_GROUP = ITEM_GROUPS.register(Utils.newIdentifier("main_creative_tab"), () -> CreativeTabRegistry.create(Text.translatable("itemGroup.scp_byo.main_creative_tab"), () -> new ItemStack(ModBlocks.OFFICE_WALL.get().asItem())));
 	//region Normal Items
-	public static final RegistrySupplier<Item> KEYCARD_1 = registerItem("keycard_1", () -> new Item(defaultSettings().maxCount(1)));
-	public static final RegistrySupplier<Item> KEYCARD_2 = registerItem("keycard_2", () -> new Item(defaultSettings().maxCount(1)));
-	public static final RegistrySupplier<Item> KEYCARD_3 = registerItem("keycard_3", () -> new Item(defaultSettings().maxCount(1)));
-	public static final RegistrySupplier<Item> KEYCARD_4 = registerItem("keycard_4", () -> new Item(defaultSettings().maxCount(1)));
-	public static final RegistrySupplier<Item> KEYCARD_5 = registerItem("keycard_5", () -> new Item(defaultSettings().maxCount(1)));
-	public static final RegistrySupplier<Item> KEYCARD_6 = registerItem("keycard_6", () -> new Item(defaultSettings().maxCount(1)));
+	public static final RegistrySupplier<Item> KEYCARD_1 = registerItem("keycard_1", Item::new, defaultSettings().maxCount(1));
+	public static final RegistrySupplier<Item> KEYCARD_2 = registerItem("keycard_2", Item::new, defaultSettings().maxCount(1));
+	public static final RegistrySupplier<Item> KEYCARD_3 = registerItem("keycard_3", Item::new, defaultSettings().maxCount(1));
+	public static final RegistrySupplier<Item> KEYCARD_4 = registerItem("keycard_4", Item::new, defaultSettings().maxCount(1));
+	public static final RegistrySupplier<Item> KEYCARD_5 = registerItem("keycard_5", Item::new, defaultSettings().maxCount(1));
+	public static final RegistrySupplier<Item> KEYCARD_6 = registerItem("keycard_6", Item::new, defaultSettings().maxCount(1));
 	//region Custom Items
-	public static final RegistrySupplier<Item> WRENCH = registerItem("wrench", () -> new Wrench(defaultSettings().maxCount(1).recipeRemainder(ITEMS.getRegistrar().get(Utils.newIdentifier("wrench")))));
+	public static final RegistrySupplier<Item> WRENCH = registerItem("wrench", Wrench::new, defaultSettings().maxCount(1).recipeRemainder(ITEMS.getRegistrar().get(Utils.newIdentifier("wrench"))));
 	
 	//endregion
-	public static final RegistrySupplier<Item> SLIDING_DOOR_ITEM = registerItem("sliding_door", ModItems::getSlidingDoorItem);
-	public static final RegistrySupplier<Item> SCP_096_SPAWN_EGG = registerItem("scp_096_spawn_egg", () -> new SCP096SpawnEggItem(ModEntities.SCP_096, 0xECECEC, 0xD8D8D8, defaultSettings()));
+	public static final RegistrySupplier<Item> SLIDING_DOOR_ITEM = registerItem("sliding_door", SlidingDoorItem::new, defaultSettings());
+	public static final RegistrySupplier<Item> SCP_096_SPAWN_EGG = registerItem("scp_096_spawn_egg", (settings) -> new SCP096SpawnEggItem(ModEntities.SCP_096, settings), defaultSettings());
 	
 	public static Item.Settings defaultSettings() {
-		return new Item.Settings().arch$tab(SCP_FONDATION_ITEM_GROUP);
+		return new Item.Settings().useItemPrefixedTranslationKey().arch$tab(SCP_FOUNDATION_ITEM_GROUP);
 	}
 	//endregion
-	
-	public static RegistrySupplier<Item> registerItem(String name, Supplier<Item> item) {
-		return ITEMS.register(Utils.newIdentifier(name), item);
+
+	public static RegistrySupplier<Item> registerItem(String name, Function<Item.Settings, Item> blockFactory, Item.Settings settings) {
+		RegistryKey<Item> itemKey = keyOfItem(name);
+		return ITEMS.register(Utils.newIdentifier(name), () -> blockFactory.apply(settings.registryKey(itemKey)));
 	}
-	
-	
+
 	public static void registerItems() {
-		
 		ITEMS.register();
 	}
-	
-	@ExpectPlatform
-	private static Item getSlidingDoorItem() {
-		// Just throw an error, the content should get replaced at runtime by Architectury API
-		// Something is terribly wrong if this is not replaced.
-		throw new AssertionError();
+
+	public static void registerItemGroups(){
+		ITEM_GROUPS.register();
+	}
+
+	private static RegistryKey<Item> keyOfItem(String name) {
+		return RegistryKey.of(RegistryKeys.ITEM, Utils.newIdentifier(name));
 	}
 }

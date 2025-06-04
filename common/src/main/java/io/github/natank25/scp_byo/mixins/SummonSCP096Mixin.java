@@ -24,9 +24,9 @@ class SummonSCP096Mixin {
 	private static void injectSummonSCP096Command(ServerCommandSource source, RegistryEntry.Reference<EntityType<?>> entityType, Vec3d pos, NbtCompound nbt, boolean initialize, CallbackInfoReturnable<Integer> cir) {
 		
 		if (ModEntities.SCP_096.getId() == entityType.value().arch$registryName() && initialize) {
-			DoesSCP096Exist doesSCP096Exist = source.getWorld().scp_byoGetDataManager().getDoesSCP096Exists();
+			DoesSCP096Exist doesSCP096Exist = DoesSCP096Exist.get(source.getWorld());
 			
-			if (doesSCP096Exist.getDoesSCP096Exist()) {
+			if (doesSCP096Exist != null && doesSCP096Exist.getDoesSCP096Exist()) {
 				Objects.requireNonNull(source.getPlayer()).sendMessage(Text.translatable("scp_byo.commands.summonscp096.alreadyexists"));
 				
 				cir.setReturnValue(1);

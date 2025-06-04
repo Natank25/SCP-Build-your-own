@@ -7,14 +7,12 @@
     "AbstractBlockStateMixin",
     "PlayerManagerMixin",
     "ServerWorldMixin",
-    "SummonSCP096Mixin",
-    "WorldMixin"
+    "SummonSCP096Mixin"
   ],
   "client": [
-    "ClientWorldMixin",
     "EntityRendererDispatcherMixin",
     "WorldRendererMixin",
-    "WorldRenderGlobalEventsMixin"
+    "WorldEventHandlerMixin"
   ],
   "server": [],
   "injectors": {

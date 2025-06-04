@@ -105,10 +105,9 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
         this.setPathfindingPenalty(PathNodeType.DAMAGE_FIRE, 0.0F);
         this.setPathfindingPenalty(PathNodeType.RAIL, 0.0F);
         this.setPersistent();
-        initDataTracker();
 
-
-        DoesSCP096Exist.get(world).setDoesSCP096Exists(true);
+        if (!world.isClient)
+            DoesSCP096Exist.get((ServerWorld) world).setDoesSCP096Exists(true);
     }
 
     public static boolean isValidNaturalSpawn(WorldAccess world, BlockPos pos) {
@@ -116,7 +115,7 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
             return false;
         if (((World) world).getTime() < 20 * 60 * 20) return false; // Can't spawn on the first day of the world
 
-        DoesSCP096Exist doesSCP096Exist = DoesSCP096Exist.get((World) world);
+        DoesSCP096Exist doesSCP096Exist = DoesSCP096Exist.get(world.getServer().getOverworld());
 
         if (doesSCP096Exist.getDoesSCP096Exist()) return false; // Can't spawn if a scp 096 already exists
 
@@ -308,11 +307,11 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
         return this.idling ? ModSounds.SCP096_IDLE.get() : null;
     }
 
-    private void initDataTracker() {
-        DataTracker.Builder builder = new DataTracker.Builder(this);
+    @Override
+    protected void initDataTracker(DataTracker.Builder builder) {
+        super.initDataTracker(builder);
         builder.add(SCP_POSE, 0);
         builder.add(SCPHealth, 100.0f);
-        super.initDataTracker(builder);
     }
 
     @Override

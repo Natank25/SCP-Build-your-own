@@ -29,7 +29,7 @@ public class SCP096MoveToTargetGoal extends MeleeAttackGoal {
 	
 	@Override
 	public boolean canStart() {
-		long l = this.scp096.world.getTime();
+		long l = this.scp096.getWorld().getTime();
 		if (l - this.lastUpdateTime < 20L) return false;
 		
 		this.lastUpdateTime = l;
@@ -70,7 +70,7 @@ public class SCP096MoveToTargetGoal extends MeleeAttackGoal {
 		LivingEntity target = this.scp096.getTarget();
 		if (null != target) {
 			this.scp096.getLookControl().lookAt(target, 30.0F, 30.0F);
-			double d = this.scp096.getSquaredDistanceToAttackPosOf(target);
+			double d = this.scp096.getAttackDistanceScalingFactor(target);
 			this.updateCountdownTicks = Math.max(this.updateCountdownTicks - 1, 0);
 			if (this.scp096.getVisibilityCache().canSee(target) && (this.targetX == 0.0 && this.targetY == 0.0 && this.targetZ == 0.0 || target.squaredDistanceTo(this.targetX, this.targetY, this.targetZ) >= 50.0 || this.scp096.getRandom().nextFloat() < 0.05F)) {
 				this.targetX = target.getX();

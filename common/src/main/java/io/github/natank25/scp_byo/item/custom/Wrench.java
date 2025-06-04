@@ -2,6 +2,7 @@ package io.github.natank25.scp_byo.item.custom;
 
 import io.github.natank25.scp_byo.block.custom.ElevatorWallBlock;
 import io.github.natank25.scp_byo.block.custom.ExtendableBlock;
+import io.github.natank25.scp_byo.persistent_data.multiblock.Multiblocks;
 import io.github.natank25.scp_byo.persistent_data.multiblock.multiblocks.SCP096Cage;
 import io.github.natank25.scp_byo.persistent_data.multiblock.Multiblock;
 import net.minecraft.block.Block;
@@ -40,7 +41,7 @@ public class Wrench extends Item {
 				Objects.requireNonNull(player).sendMessage(Text.literal("Block at " + pos.toShortString() + " is now sticky."), true);
 			}
 			world.setBlockState(pos, state.with(ElevatorWallBlock.STICKY, !state.get(ElevatorWallBlock.STICKY)), 2);
-			return ActionResult.success(world.isClient());
+			return ActionResult.SUCCESS_SERVER;
 		} else if (block instanceof ExtendableBlock) {
 			world.setBlockState(pos, state.cycle(ExtendableBlock.PLACE).with(ExtendableBlock.FORCE_STATE, true), 3);
 			return ActionResult.SUCCESS;
@@ -49,10 +50,10 @@ public class Wrench extends Item {
 		if (world.isClient()) return ActionResult.CONSUME;
 		
 		
-		if (world.scp_byoGetDataManager().getMultiblocks().tryAssemble(pos).isPresent())
+		if (Multiblocks.get(world).tryAssemble(pos).isPresent())
 			return ActionResult.SUCCESS;
 		
-		Optional<? extends Multiblock> potentialMultiblock = world.scp_byoGetDataManager().getMultiblocks().getMultiblock(pos);
+		Optional<? extends Multiblock> potentialMultiblock = Multiblocks.get(world).getMultiblock(pos);
 		if (potentialMultiblock.isPresent()) {
 			
 			if (potentialMultiblock.get() instanceof SCP096Cage multiblock) {
@@ -61,7 +62,7 @@ public class Wrench extends Item {
 			
 		}
 		
-		return ActionResult.CONSUME_PARTIAL;
+		return ActionResult.CONSUME;
 	}
 	
 }

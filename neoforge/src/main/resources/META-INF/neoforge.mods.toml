@@ -9,28 +9,35 @@ version = "${version}"
 displayName = "SCP: Build Your Own"
 authors = "Natank25"
 description = '''
-A nice mod that allows you to build the SCP Fondation in minecraft, with all the functionalities that are expected
+A nice mod that allows you to build the SCP Foundation in minecraft, with all the functionalities that are expected
 '''
 logoFile = "mod_icon.png"
 
 [[dependencies.scp_byo]]
 modId = "neoforge"
 type = "required"
-versionRange = "[21.5,)"
+versionRange = "[${neoforge_version},)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.scp_byo]]
 modId = "minecraft"
 type = "required"
-versionRange = "[1.21.5,)"
+versionRange = "[${minecraft_version},)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.scp_byo]]
 modId = "architectury"
 type = "required"
-versionRange = "[16.1.4,)"
+versionRange = "[${architectury_api_version},)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.scp_byo]]
+modId = "geckolib"
+type = "required"
+versionRange = "[${geckolib_version},)"
 ordering = "AFTER"
 side = "BOTH"
 

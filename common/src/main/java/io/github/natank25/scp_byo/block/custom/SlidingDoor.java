@@ -101,7 +101,7 @@ public class SlidingDoor extends BlockWithEntity {
     }
 
     @Override
-    public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+    protected VoxelShape getSidesShape(BlockState state, BlockView world, BlockPos pos) {
         boolean bl = state.get(OPEN);
         if (bl) {
             switch (state.get(FACING)) {
@@ -130,6 +130,11 @@ public class SlidingDoor extends BlockWithEntity {
         }
     }
 
+    @Override
+    public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+        return getSidesShape(state, world, pos);
+    }
+
     //endregion
 
     @Nullable
@@ -152,7 +157,7 @@ public class SlidingDoor extends BlockWithEntity {
 
     @Override
     public BlockRenderType getRenderType(BlockState state) {
-        return BlockRenderType.MODEL;
+        return BlockRenderType.INVISIBLE;
     }
 
     @Override

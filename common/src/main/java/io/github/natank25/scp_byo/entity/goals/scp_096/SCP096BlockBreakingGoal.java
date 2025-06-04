@@ -4,6 +4,7 @@ import io.github.natank25.scp_byo.entity.custom.Scp_096Entity;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.Goal;
@@ -14,6 +15,7 @@ import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.context.LootContext;
 import net.minecraft.loot.context.LootContextParameters;
+import net.minecraft.loot.context.LootWorldContext;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.sound.SoundCategory;
@@ -125,12 +127,12 @@ public class SCP096BlockBreakingGoal extends Goal {
 		}
 		if (this.breakingTick >= this.tickToBreak && this.scp096.getWorld() instanceof ServerWorld level) {
 			BlockEntity blockentity = this.blockState.hasBlockEntity() ? this.scp096.getWorld().getBlockEntity(pos) : null;
-			LootContext.Builder lootparamsBuilder = (new LootContext.Builder(level)).parameter(LootContextParameters.ORIGIN, Vec3d.ofCenter(pos)).parameter(LootContextParameters.TOOL, this.scp096.getOffHandStack()).optionalParameter(LootContextParameters.BLOCK_ENTITY, blockentity).optionalParameter(LootContextParameters.THIS_ENTITY, this.scp096);
+			LootWorldContext.Builder lootparamsBuilder = (new LootWorldContext.Builder(level)).add(LootContextParameters.ORIGIN, Vec3d.ofCenter(pos)).add(LootContextParameters.TOOL, this.scp096.getOffHandStack()).addOptional(LootContextParameters.BLOCK_ENTITY, blockentity).addOptional(LootContextParameters.THIS_ENTITY, this.scp096);
 			this.blockState.onStacksDropped(level, pos, this.scp096.getOffHandStack(), true);
 			this.blockState.getDroppedStacks(lootparamsBuilder).forEach((itemStack) -> level.spawnEntity(new ItemEntity(level, pos.getX() + 0.5f, pos.getY() + 0.5f, pos.getZ() + 0.5f, itemStack)));
 			this.scp096.getWorld().breakBlock(pos, false, this.scp096);
 			this.scp096.getWorld().setBlockBreakingInfo(this.scp096.getId(), pos, -1);
-			this.targetBlocks.remove(0);
+			this.targetBlocks.removeFirst();
 			if (!this.targetBlocks.isEmpty()) this.initBlockBreak();
 			else if (this.scp096.distanceTo(this.target) > 2.0d && !this.scp096.getVisibilityCache().canSee(this.target))
 				this.start();
@@ -140,7 +142,7 @@ public class SCP096BlockBreakingGoal extends Goal {
 	private boolean canBreakBlock() {
 		if (!this.chase && this.scp096.distanceTo(this.scp096.getTarget()) < 16.0) return false;
 		if (!Objects.requireNonNull(this.blockState).getFluidState().isOf(Fluids.EMPTY)) return false;
-		return this.scp096.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING);
+		return Objects.requireNonNull(this.scp096.getServer()).getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING);
 		
 	}
 	
@@ -170,13 +172,8 @@ public class SCP096BlockBreakingGoal extends Goal {
 	
 	private float getDigSpeed() {
 		float digSpeed = 10;
-		int efficiencyLevel = EnchantmentHelper.getEfficiency(this.scp096);
-		ItemStack itemstack = this.scp096.getOffHandStack();
-		if (efficiencyLevel > 0 && !itemstack.isEmpty()) {
-			digSpeed += (efficiencyLevel * efficiencyLevel + 1);
-		}
-		
-		if (StatusEffectUtil.hasHaste(this.scp096)) {
+
+        if (StatusEffectUtil.hasHaste(this.scp096)) {
 			digSpeed *= 1.0F + (StatusEffectUtil.getHasteAmplifier(this.scp096) + 1) * 0.2F;
 		}
 		
@@ -191,8 +188,8 @@ public class SCP096BlockBreakingGoal extends Goal {
 			digSpeed *= miningFatigueAmplifier;
 		}
 		
-		if (this.scp096.isSubmergedInWater() && !EnchantmentHelper.hasAquaAffinity(this.scp096)) {
-			digSpeed /= 5.0F;
+		if (this.scp096.isSubmergedInWater()) {
+			digSpeed /= 2.0F;
 		}
 		
 		return digSpeed;

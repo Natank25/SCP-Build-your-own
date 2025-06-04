@@ -37,7 +37,7 @@ public class KeycardReaderBlock extends ButtonBlock implements BlockEntityProvid
     //endregion
 
     public KeycardReaderBlock(Settings settings) {
-        super(BlockSetType.STONE, 20, settings);
+        super(BlockSetType.STONE, 50, settings);
 
         this.setDefaultState(this.getStateManager().getDefaultState().with(KEYCARD_LEVEL, 1));
     }
