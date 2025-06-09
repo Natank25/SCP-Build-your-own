@@ -20,7 +20,6 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
-import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.stream.Stream;
@@ -97,17 +96,17 @@ public class KeycardReaderBlock extends ButtonBlock implements BlockEntityProvid
 
         if (player.isHolding(ModItems.KEYCARD_1.get()) || player.isHolding(ModItems.KEYCARD_2.get()) || player.isHolding(ModItems.KEYCARD_3.get()) || player.isHolding(ModItems.KEYCARD_4.get()) || player.isHolding(ModItems.KEYCARD_5.get()) || player.isHolding(ModItems.KEYCARD_6.get())) {
             if (player.isHolding(ModItems.KEYCARD_1.get()) && state.get(KEYCARD_LEVEL) == 1) {
-                return this.activate(state, world, pos, player);
+                return this.activate(state, world, pos);
             } else if (player.isHolding(ModItems.KEYCARD_2.get()) && state.get(KEYCARD_LEVEL) <= 2) {
-                return this.activate(state, world, pos, player);
+                return this.activate(state, world, pos);
             } else if (player.isHolding(ModItems.KEYCARD_3.get()) && state.get(KEYCARD_LEVEL) <= 3) {
-                return this.activate(state, world, pos, player);
+                return this.activate(state, world, pos);
             } else if (player.isHolding(ModItems.KEYCARD_4.get()) && state.get(KEYCARD_LEVEL) <= 4) {
-                return this.activate(state, world, pos, player);
+                return this.activate(state, world, pos);
             } else if (player.isHolding(ModItems.KEYCARD_5.get()) && state.get(KEYCARD_LEVEL) <= 5) {
-                return this.activate(state, world, pos, player);
+                return this.activate(state, world, pos);
             } else if (player.isHolding(ModItems.KEYCARD_6.get()) && state.get(KEYCARD_LEVEL) <= 6) {
-                return this.activate(state, world, pos, player);
+                return this.activate(state, world, pos);
             }
             player.sendMessage(Text.literal("You have inserted the keycard but nothing happened."), true);
         } else if (player.isHolding(ModItems.WRENCH.get())) {
@@ -139,11 +138,9 @@ public class KeycardReaderBlock extends ButtonBlock implements BlockEntityProvid
         builder.add(KEYCARD_LEVEL, FACING, POWERED, FACE);
     }
 
-    private ActionResult activate(BlockState state, World world, BlockPos pos, PlayerEntity player) {
+    private ActionResult activate(BlockState state, World world, BlockPos pos) {
 
-        this.powerOn(state, world, pos, null); //TODO: fix this from not working as expected
-        this.playClickSound(null, world, pos, true);
-        world.emitGameEvent(player, GameEvent.BLOCK_ACTIVATE, pos);
+        this.powerOn(state, world, pos, null);
         return ActionResult.SUCCESS;
 
     }

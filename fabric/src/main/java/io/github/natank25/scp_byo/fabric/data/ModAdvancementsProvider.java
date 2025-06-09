@@ -68,15 +68,6 @@ public class ModAdvancementsProvider extends FabricAdvancementProvider {
 		return Scp_byo.MOD_ID+"/"+advId;
 	}
 
-	@Override
-	public CompletableFuture<?> run(DataWriter writer) {
-		return null;
-	}
-	
-	@Override
-	public String getName() {
-		return "";
-	}
 	
 	/*
 	List of advancements to do:

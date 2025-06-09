@@ -50,6 +50,7 @@ import net.minecraft.util.function.ValueLists;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.event.GameEvent;
@@ -67,10 +68,6 @@ import java.util.*;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
 
-//TODO: Add SCRAMBLE project (https://scp-wiki.wikidot.com/incident-096-1-a - log 096-1-B)
-//(Too OP with just paper) Add paper bag feature (maybe with just a paper item and player needs to be close) (https://scp-wiki.wikidot.com/scp-096 - Retrieval Incident #096-1-A)
-
-//chase ? not moving animation : sitting animation (WIP) (need to re add SCP096Pose.SITTING)
 public class Scp_096Entity extends ScpEntity implements GeoEntity {
     private static final TrackedData<Integer> SCP_POSE;
     private static final EntityAttributeModifier ATTACKING_SPEED_BOOST;
@@ -110,12 +107,12 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
             DoesSCP096Exist.get((ServerWorld) world).setDoesSCP096Exists(true);
     }
 
-    public static boolean isValidNaturalSpawn(WorldAccess world, BlockPos pos) {
+    public static boolean isValidNaturalSpawn(ServerWorldAccess world, BlockPos pos) {
         if (!Objects.requireNonNull(world.getServer()).getGameRules().getBoolean(ModGamerules.CAN_SCP096_SPAWN))
             return false;
         if (((World) world).getTime() < 20 * 60 * 20) return false; // Can't spawn on the first day of the world
 
-        DoesSCP096Exist doesSCP096Exist = DoesSCP096Exist.get(world.getServer().getOverworld());
+        DoesSCP096Exist doesSCP096Exist = DoesSCP096Exist.get(Objects.requireNonNull(world.getServer()).getOverworld());
 
         if (doesSCP096Exist.getDoesSCP096Exist()) return false; // Can't spawn if a scp 096 already exists
 
@@ -225,7 +222,7 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
     @Override
     public void remove(RemovalReason reason) {
         if (!this.getWorld().isClient()) {
-            DoesSCP096Exist.get(this.getWorld()).setDoesSCP096Exists(false);
+            DoesSCP096Exist.get((ServerWorld) this.getWorld()).setDoesSCP096Exists(false);
         }
         this.stopAllSounds();
 
@@ -244,9 +241,8 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
             if (null == this.getTarget() && !this.getWorld().getPlayers().isEmpty()) this.setTarget();
 
             if (this.age % 20 == 0) {
-                this.isInCage = this.isTrulyInCage();
+                this.isInCage = this.isTrulyInCage((ServerWorld) this.getWorld());
             }
-
 
             this.setPoseWhenIdle();
 
@@ -361,15 +357,6 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
         }
     }
 
-    private Optional<SCP096Cage> getCage() {
-        Optional<? extends Multiblock> optional = Multiblocks.get(this.getWorld()).getMultiblock(this.getBlockPos());
-        if (optional.isEmpty()) return Optional.empty();
-
-        if ((optional.get() instanceof SCP096Cage cage)) return Optional.of(cage);
-
-        return Optional.empty();
-    }
-
     private Float getSCPHealth() {
         return this.dataTracker.get(SCPHealth);
     }
@@ -404,8 +391,8 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
         return b1 && b2;
     }
 
-    private boolean isTrulyInCage() {
-        Optional<? extends Multiblock> optional = Multiblocks.get(this.getWorld()).getMultiblock(this.getBlockPos());
+    private boolean isTrulyInCage(ServerWorld world) {
+        Optional<? extends Multiblock> optional = Multiblocks.get(world).getMultiblock(this.getBlockPos());
         if (optional.isEmpty()) return false;
 
         if (!(optional.get() instanceof SCP096Cage cage)) return false;

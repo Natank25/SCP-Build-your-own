@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-//TODO: change how random block is obtained so that it looks more like a crack than a random block
 public class SCP096Cage extends Multiblock {
 	
 	private final Box insideBox;
@@ -87,18 +86,17 @@ public class SCP096Cage extends Multiblock {
 	@Override
 	public NbtCompound getNbt() {
 		NbtCompound nbt = super.getNbt();
-		
 		int counter = 0;
+
 		for (Map.Entry<BlockPos, Integer> entry : this.blockPosToProgress.entrySet()) {
 			NbtCompound blockNbt = new NbtCompound();
-			BlockPos pos = entry.getKey(); //TODO optimize -> 1 nbt compound per damage, each nbt compound have list of blocks pos
+			BlockPos pos = entry.getKey();
 			blockNbt.putIntArray("pos", new int[]{pos.getX(), pos.getY(), pos.getZ()});
 			blockNbt.putInt("damage", entry.getValue());
 			
 			nbt.put("block" + counter, blockNbt);
 			counter++;
 		}
-		
 		return nbt;
 	}
 	

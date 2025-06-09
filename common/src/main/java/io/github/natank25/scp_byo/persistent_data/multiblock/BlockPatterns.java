@@ -1,5 +1,6 @@
 package io.github.natank25.scp_byo.persistent_data.multiblock;
 
+import dev.architectury.platform.Platform;
 import io.github.natank25.scp_byo.persistent_data.multiblock.multiblocks.FullIronBeacon;
 import io.github.natank25.scp_byo.persistent_data.multiblock.multiblocks.SCP096Cage;
 import io.github.natank25.scp_byo.utils.Utils;
@@ -21,7 +22,7 @@ public enum BlockPatterns {
 	private static final List<ScpBYOBlockPattern> BLOCK_PATTERNS = new ArrayList<>();
 	
 	public static final ScpBYOBlockPattern SCP_096_CHAMBER = register(Utils.newIdentifier("scp_096_multiblock"), SCP096Cage.getBlockPattern(), SCP096Cage.class);
-	public static final ScpBYOBlockPattern TEST = register(Utils.newIdentifier("iron_beacon_multiblock"), BlockPatternBuilder.start().aisle("iii", "aaa").aisle("iii", "aia").aisle("iii", "aaa").where('i', CachedBlockPosition.matchesBlockState(BlockStatePredicate.forBlock(Blocks.IRON_BLOCK))).where('a', CachedBlockPosition.matchesBlockState(AbstractBlock.AbstractBlockState::isAir)).build(), FullIronBeacon.class); //TODO try to replace FullIronBeacon.class to Multiblock.class
+	public static ScpBYOBlockPattern TEST;
 	
 	
 	public static <M extends Multiblock> ScpBYOBlockPattern register(Identifier id, BlockPattern blockPattern, Class<M> multiblockClass) {
@@ -45,6 +46,12 @@ public enum BlockPatterns {
 	
 	public static List<ScpBYOBlockPattern> getAll() {
 		return BLOCK_PATTERNS;
+	}
+
+	public static void registerBlockPatterns(){
+		if (Platform.isDevelopmentEnvironment()){
+			TEST = register(Utils.newIdentifier("iron_beacon_multiblock"), BlockPatternBuilder.start().aisle("iii", "aaa").aisle("iii", "aia").aisle("iii", "aaa").where('i', CachedBlockPosition.matchesBlockState(BlockStatePredicate.forBlock(Blocks.IRON_BLOCK))).where('a', CachedBlockPosition.matchesBlockState(AbstractBlock.AbstractBlockState::isAir)).build(), FullIronBeacon.class); //TODO try to replace FullIronBeacon.class to Multiblock.class
+		}
 	}
 	
 }

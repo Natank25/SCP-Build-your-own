@@ -11,6 +11,7 @@ import io.github.natank25.scp_byo.commands.ModCommands;
 import io.github.natank25.scp_byo.entity.ModEntities;
 import io.github.natank25.scp_byo.entity.client.scp_096.Scp096Renderer;
 import io.github.natank25.scp_byo.item.ModItems;
+import io.github.natank25.scp_byo.persistent_data.multiblock.BlockPatterns;
 import io.github.natank25.scp_byo.sounds.ModSounds;
 import io.github.natank25.scp_byo.world.gen.ModWorldGeneration;
 import net.fabricmc.api.EnvType;
@@ -42,6 +43,7 @@ public class Scp_byo {
         RegisterModEvents();
         RegisterCommonNetwork();
 
+        BlockPatterns.registerBlockPatterns();
 
         //endregion
 
