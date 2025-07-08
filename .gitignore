@@ -5,3 +5,4 @@ run
 gradlew
 gradlew.bat
 .gitignore
+/fabric/src/main/generated/.cache/

@@ -1,5 +1,7 @@
 package io.github.natank25.scp_byo;
 
+import dev.architectury.impl.NetworkAggregator;
+import dev.architectury.networking.NetworkManager;
 import dev.architectury.platform.Platform;
 import dev.architectury.registry.client.level.entity.EntityRendererRegistry;
 import dev.architectury.utils.Env;
@@ -11,11 +13,18 @@ import io.github.natank25.scp_byo.commands.ModCommands;
 import io.github.natank25.scp_byo.entity.ModEntities;
 import io.github.natank25.scp_byo.entity.client.scp_096.Scp096Renderer;
 import io.github.natank25.scp_byo.item.ModItems;
+import io.github.natank25.scp_byo.networking.GrantAdvancementPayload;
 import io.github.natank25.scp_byo.persistent_data.multiblock.BlockPatterns;
 import io.github.natank25.scp_byo.sounds.ModSounds;
 import io.github.natank25.scp_byo.world.gen.ModWorldGeneration;
+import io.netty.buffer.ByteBuf;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -60,17 +69,13 @@ public class Scp_byo {
     }
 
     public static void RegisterCommonNetwork() {
-        /* TODO: Change to CODECS
-        NetworkManager.registerReceiver(NetworkManager.c2s(), Networking.GRANT_ADVANCEMENT_PACKET_ID, (buf, context) -> {
-
-            String criterionName = buf.readString();
-            Identifier advancementId = buf.readIdentifier();
+        NetworkManager.registerReceiver(NetworkManager.c2s(), GrantAdvancementPayload.ID, GrantAdvancementPayload.CODEC, (payload, context) -> {
             ServerPlayerEntity player = (ServerPlayerEntity) context.getPlayer();
             MinecraftServer server = player.getServer();
             if (server != null)
-                server.execute(() -> player.getAdvancementTracker().grantCriterion(server.getAdvancementLoader().get(advancementId), criterionName));
+                server.execute(() -> player.getAdvancementTracker().grantCriterion(server.getAdvancementLoader().get(payload.id()), payload.criterion()));
         });
-
+        /* TODO: Change to CODECS
         NetworkManager.registerReceiver(NetworkManager.c2s(), Networking.UPDATE_PLAYER_DATA, (buf, context) -> {
             ServerPlayerEntity player = (ServerPlayerEntity) context.getPlayer();
             PerPlayerData.getPlayerData(player).setHasSeenScp(true);

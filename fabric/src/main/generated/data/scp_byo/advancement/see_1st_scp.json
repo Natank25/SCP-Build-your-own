@@ -1,0 +1,24 @@
+{
+  "criteria": {
+    "1st_scp": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "background": "scp_byo:textures/gui/advancements/background.png",
+    "description": "Encounter your first scp",
+    "frame": "goal",
+    "hidden": true,
+    "icon": {
+      "count": 1,
+      "id": "scp_byo:scp_096_spawn_egg"
+    },
+    "title": "Your first SCP"
+  },
+  "requirements": [
+    [
+      "1st_scp"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -24,7 +24,6 @@ public class ModModelProvider extends FabricModelProvider {
         blockStateModelGenerator.registerCubeAllModelTexturePool(ModBlocks.CONCRETE_FLOOR.get());
         blockStateModelGenerator.registerCubeAllModelTexturePool(ModBlocks.DIRTY_METAL.get());
         blockStateModelGenerator.registerCubeAllModelTexturePool(ModBlocks.ELEVATOR_FLOOR.get());
-        blockStateModelGenerator.registerCubeAllModelTexturePool(ModBlocks.KEYCARD_READER.get());
     }
 
     @Override

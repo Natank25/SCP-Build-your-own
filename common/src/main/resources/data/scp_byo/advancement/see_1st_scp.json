@@ -5,24 +5,20 @@
     }
   },
   "display": {
-    "announce_to_chat": true,
     "background": "scp_byo:textures/gui/advancements/background.png",
-    "description": {
-      "text": "Encounter your first scp"
-    },
+    "description": "Encounter your first scp",
     "frame": "goal",
     "hidden": true,
     "icon": {
-      "item": "scp_byo:scp_096_spawn_egg"
+      "count": 1,
+      "id": "scp_byo:scp_096_spawn_egg"
     },
-    "show_toast": true,
-    "title": {
-      "text": "Your first SCP"
-    }
+    "title": "Your first SCP"
   },
   "requirements": [
     [
       "1st_scp"
     ]
-  ]
+  ],
+  "sends_telemetry_event": true
 }

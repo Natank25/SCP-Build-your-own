@@ -2,27 +2,19 @@
   "parent": "minecraft:scp_byo/see_1st_scp",
   "criteria": {
     "trap_scp": {
-      "conditions": {
-        "scp_type": "scp_byo:scp_096"
-      },
       "trigger": "scp_byo:trap_scp"
     }
   },
   "display": {
-    "announce_to_chat": true,
     "background": "scp_byo:textures/gui/advancements/background.png",
-    "description": {
-      "text": "Trap SCP 096 in his cage"
-    },
+    "description": "Trap SCP 096 in his cage",
     "frame": "challenge",
     "hidden": true,
     "icon": {
-      "item": "minecraft:iron_block"
+      "count": 1,
+      "id": "minecraft:iron_block"
     },
-    "show_toast": true,
-    "title": {
-      "text": "Trap SCP 096"
-    }
+    "title": "Trap SCP 096"
   },
   "requirements": [
     [
@@ -31,5 +23,6 @@
   ],
   "rewards": {
     "experience": 50
-  }
+  },
+  "sends_telemetry_event": true
 }

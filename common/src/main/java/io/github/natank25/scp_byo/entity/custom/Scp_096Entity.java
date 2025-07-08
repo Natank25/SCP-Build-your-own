@@ -3,6 +3,7 @@ package io.github.natank25.scp_byo.entity.custom;
 import com.google.common.base.Suppliers;
 import io.github.natank25.scp_byo.ModGamerules;
 import io.github.natank25.scp_byo.ModGlobalEvents;
+import io.github.natank25.scp_byo.Scp_byo;
 import io.github.natank25.scp_byo.entity.goals.scp_096.SCP096AttackTargetGoal;
 import io.github.natank25.scp_byo.entity.goals.scp_096.SCP096BlockBreakingGoal;
 import io.github.natank25.scp_byo.entity.goals.scp_096.SCP096MoveToTargetGoal;
@@ -324,11 +325,13 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
         if (!this.idling) return;
         this.setPitch(46.0f);
         boolean result = false;
+
         for (PlayerEntity p : this.getWorld().getPlayers()) {
             if (!p.canTakeDamage()) {
                 break;
             }
-            result = this.isPlayerSeeing(p);
+            result = this.isEntityLookingAtMe(
+                    p, 0.5, false, true, this.getEyeY(), this.getY() + 0.5 * this.getScale(), (this.getEyeY() + this.getY()) / 2.0);
 
             if (result) {
                 this.setSCP_Pose(SCP096Pose.RAGING);
@@ -373,23 +376,6 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
         this.dataTracker.set(SCP_POSE, pose.getId());
     }
 
-    private boolean isPlayerSeeing(PlayerEntity player) {
-
-        Vec3d vec3d = player.getRotationVec(1.0F).normalize(); // Rotation fo the player between 0-1
-        Vec3d vec3d2 = new Vec3d(this.getX() - player.getX(), this.getEyeY() - player.getEyeY(), this.getZ() - player.getZ());  // Distance between player and 096 in blocks of each axis
-        vec3d2 = vec3d2.normalize();  // Distance between player and 096 in blocks of each axis between 0-1
-        double e = vec3d.dotProduct(vec3d2); // The closer to 1 this var is, the more the player is looking at 096
-        boolean b1 = e > 0.35 && player.canSee(this); // 1.0 - 0.025 / d_scp is modified for precision
-
-
-        Vec3d vec3DScp = this.getRotationVec(1.0F).normalize();
-        Vec3d vec3D2Scp = new Vec3d(player.getX() - this.getX(), player.getEyeY() - this.getEyeY(), player.getZ() - this.getZ());
-        vec3D2Scp = vec3D2Scp.normalize();
-        double eScp = vec3DScp.dotProduct(vec3D2Scp);
-        boolean b2 = eScp > 0.05 && this.canSee(player);
-
-        return b1 && b2;
-    }
 
     private boolean isTrulyInCage(ServerWorld world) {
         Optional<? extends Multiblock> optional = Multiblocks.get(world).getMultiblock(this.getBlockPos());
