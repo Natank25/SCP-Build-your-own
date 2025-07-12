@@ -1,9 +1,14 @@
 package io.github.natank25.scp_byo.utils;
 
+import com.mojang.serialization.Codec;
 import io.github.natank25.scp_byo.Scp_byo;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3i;
+import net.minecraft.world.PersistentState;
+import net.minecraft.world.PersistentStateType;
 
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 public enum Utils {
@@ -12,7 +17,17 @@ public enum Utils {
 	public static Identifier newIdentifier(String path) {
 		return Identifier.of(Scp_byo.MOD_ID, path);
 	}
+	public static String getPersistentStatePath(String path) {
+		return Scp_byo.MOD_ID + "_" +  path;
+	}
 
+	public static <T extends PersistentState> PersistentStateType<T> createPersistentStateType(String key, Function<PersistentState.Context, T> constructor, Function<PersistentState.Context, Codec<T>> codec){
+		return new PersistentStateType<>(getPersistentStatePath(key), constructor, codec, null);
+	}
+
+	public static <T extends PersistentState> PersistentStateType<T> createPersistentStateType(String key, Supplier<T> constructor, Codec<T> codec){
+		return new PersistentStateType<>(getPersistentStatePath(key), context -> constructor.get(), context -> codec, null);
+	}
 
 	public static IntStream Vec3IToStream(Vec3i vec) {
 		return IntStream.of(vec.getX(), vec.getY(), vec.getZ());

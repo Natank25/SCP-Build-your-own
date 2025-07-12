@@ -3,7 +3,6 @@ package io.github.natank25.scp_byo.entity.custom;
 import com.google.common.base.Suppliers;
 import io.github.natank25.scp_byo.ModGamerules;
 import io.github.natank25.scp_byo.ModGlobalEvents;
-import io.github.natank25.scp_byo.Scp_byo;
 import io.github.natank25.scp_byo.entity.goals.scp_096.SCP096AttackTargetGoal;
 import io.github.natank25.scp_byo.entity.goals.scp_096.SCP096BlockBreakingGoal;
 import io.github.natank25.scp_byo.entity.goals.scp_096.SCP096MoveToTargetGoal;
@@ -50,10 +49,8 @@ import net.minecraft.stat.Stats;
 import net.minecraft.util.function.ValueLists;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -105,7 +102,7 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
         this.setPersistent();
 
         if (!world.isClient)
-            DoesSCP096Exist.get((ServerWorld) world).setDoesSCP096Exists(true);
+            DoesSCP096Exist.get((ServerWorld) world).setDoesSCP096Exist(true);
     }
 
     public static boolean isValidNaturalSpawn(ServerWorldAccess world, BlockPos pos) {
@@ -113,9 +110,9 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
             return false;
         if (((World) world).getTime() < 20 * 60 * 20) return false; // Can't spawn on the first day of the world
 
-        DoesSCP096Exist doesSCP096Exist = DoesSCP096Exist.get(Objects.requireNonNull(world.getServer()).getOverworld());
+        DoesSCP096Exist doesSCP096Exist = DoesSCP096Exist.get(Objects.requireNonNull(world.getServer()));
 
-        if (doesSCP096Exist.getDoesSCP096Exist()) return false; // Can't spawn if a scp 096 already exists
+        if (doesSCP096Exist.doesSCP096Exist()) return false; // Can't spawn if a scp 096 already exists
 
         BlockState blockState = world.getBlockState(pos.down());
         return blockState.isIn(BlockTags.ANIMALS_SPAWNABLE_ON); // Can only spawn if animals can
@@ -223,7 +220,7 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
     @Override
     public void remove(RemovalReason reason) {
         if (!this.getWorld().isClient()) {
-            DoesSCP096Exist.get((ServerWorld) this.getWorld()).setDoesSCP096Exists(false);
+            DoesSCP096Exist.get((ServerWorld) this.getWorld()).setDoesSCP096Exist(false);
         }
         this.stopAllSounds();
 

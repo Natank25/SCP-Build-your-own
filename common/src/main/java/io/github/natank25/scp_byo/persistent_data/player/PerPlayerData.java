@@ -2,8 +2,7 @@ package io.github.natank25.scp_byo.persistent_data.player;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.natank25.scp_byo.persistent_data.DoesSCP096Exist;
-import io.github.natank25.scp_byo.persistent_data.ScpByoDataManager;
+import io.github.natank25.scp_byo.utils.Utils;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.PersistentState;
@@ -24,12 +23,8 @@ public class PerPlayerData extends PersistentState {
             ).apply(instance, PerPlayerData::new)
     );
 
-    private static final PersistentStateType<PerPlayerData> PER_PLAYER_DATA_TYPE = new PersistentStateType<>(
-            ScpByoDataManager.getFullKey(ScpByoDataManager.PER_PLAYER_DATA_KEY),
-            PerPlayerData::new,
-            CODEC,
-            null
-    );
+    private static final PersistentStateType<PerPlayerData> PER_PLAYER_DATA_TYPE = Utils.createPersistentStateType("per_player",
+            PerPlayerData::new, CODEC);
 
     public PerPlayerData(){
         this.playerData = new HashMap<>();
@@ -39,16 +34,18 @@ public class PerPlayerData extends PersistentState {
         this.playerData = data;
     }
 
-	public static PerPlayerData get(World world) {
-		if (world.isClient())
+    public static PlayerData getPlayerData(PlayerEntity player) {
+        return get(player.getWorld()).playerData.computeIfAbsent(player.getUuid(), uuid -> new PlayerData(false));
+    }
+
+    public static PerPlayerData get(World world) {
+        if (world.isClient())
             return null;
         return get((ServerWorld) world);
-	}
-	public static PerPlayerData get(ServerWorld world) {
-		return world.getPersistentStateManager().getOrCreate(PER_PLAYER_DATA_TYPE);
-	}
-	
-	public static PlayerData getPlayerData(PlayerEntity player) {
-		return get(player.getWorld()).playerData.computeIfAbsent(player.getUuid(), uuid -> new PlayerData(false));
-	}
+    }
+
+    public static PerPlayerData get(ServerWorld world) {
+        return world.getPersistentStateManager().getOrCreate(PER_PLAYER_DATA_TYPE);
+    }
+
 }

@@ -3,7 +3,6 @@ package io.github.natank25.scp_byo.persistent_data.multiblock;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.natank25.scp_byo.Scp_byo;
-import io.github.natank25.scp_byo.persistent_data.ScpByoDataManager;
 import io.github.natank25.scp_byo.utils.ModConstants;
 import io.github.natank25.scp_byo.utils.Utils;
 import io.netty.buffer.Unpooled;
@@ -39,7 +38,7 @@ public class Multiblocks extends PersistentState {
 	);
 
 	private static final PersistentStateType<Multiblocks> MULTIBLOCKS_TYPE = new PersistentStateType<>(
-			ScpByoDataManager.getFullKey(ScpByoDataManager.MULTIBLOCKS_KEY),
+			"scp_byo/myKey",
 			context -> new Multiblocks(context.getWorldOrThrow()),
 			CODEC_GETTER,
 			null

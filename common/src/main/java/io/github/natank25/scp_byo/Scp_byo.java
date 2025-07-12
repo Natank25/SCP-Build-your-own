@@ -1,6 +1,5 @@
 package io.github.natank25.scp_byo;
 
-import dev.architectury.impl.NetworkAggregator;
 import dev.architectury.networking.NetworkManager;
 import dev.architectury.platform.Platform;
 import dev.architectury.registry.client.level.entity.EntityRendererRegistry;
@@ -17,14 +16,10 @@ import io.github.natank25.scp_byo.networking.GrantAdvancementPayload;
 import io.github.natank25.scp_byo.persistent_data.multiblock.BlockPatterns;
 import io.github.natank25.scp_byo.sounds.ModSounds;
 import io.github.natank25.scp_byo.world.gen.ModWorldGeneration;
-import io.netty.buffer.ByteBuf;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

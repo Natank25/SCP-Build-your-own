@@ -26,7 +26,7 @@ class SummonSCP096Mixin {
 		if (ModEntities.SCP_096.getId() == entityType.value().arch$registryName() && initialize) {
 			DoesSCP096Exist doesSCP096Exist = DoesSCP096Exist.get(source.getWorld());
 			
-			if (doesSCP096Exist != null && doesSCP096Exist.getDoesSCP096Exist()) {
+			if (doesSCP096Exist != null && doesSCP096Exist.doesSCP096Exist()) {
 				Objects.requireNonNull(source.getPlayer()).sendMessage(Text.translatable("scp_byo.commands.summonscp096.alreadyexists"));
 				
 				cir.setReturnValue(1);

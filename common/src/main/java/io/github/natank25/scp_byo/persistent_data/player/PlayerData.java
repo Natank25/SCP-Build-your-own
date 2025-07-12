@@ -2,8 +2,6 @@ package io.github.natank25.scp_byo.persistent_data.player;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.natank25.scp_byo.persistent_data.DoesSCP096Exist;
-import net.minecraft.nbt.NbtCompound;
 
 public class PlayerData {
 	private static final String hasSeenScpKey = "hasSeenScp";

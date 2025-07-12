@@ -25,7 +25,7 @@ public class SCP096SpawnEggItem extends ArchitecturySpawnEggItem {
 		} else {
 			DoesSCP096Exist doesSCP096Exist = DoesSCP096Exist.get((ServerWorld) context.getWorld());
 			
-			if (doesSCP096Exist.getDoesSCP096Exist()) {
+			if (doesSCP096Exist.doesSCP096Exist()) {
 				Objects.requireNonNull(context.getPlayer()).sendMessage(Text.translatable("scp_byo.commands.summonscp096.alreadyexists"), true);
 				return ActionResult.CONSUME;
 			} else {
