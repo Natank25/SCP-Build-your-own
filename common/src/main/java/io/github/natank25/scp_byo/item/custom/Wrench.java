@@ -2,9 +2,7 @@ package io.github.natank25.scp_byo.item.custom;
 
 import io.github.natank25.scp_byo.block.custom.ElevatorWallBlock;
 import io.github.natank25.scp_byo.block.custom.ExtendableBlock;
-import io.github.natank25.scp_byo.persistent_data.multiblock.Multiblocks;
-import io.github.natank25.scp_byo.persistent_data.multiblock.multiblocks.SCP096Cage;
-import io.github.natank25.scp_byo.persistent_data.multiblock.Multiblock;
+import io.github.natank25.scp_byo.block.multiblockBAK.Multiblocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -16,7 +14,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.Objects;
-import java.util.Optional;
 
 public class Wrench extends Item {
 	public Wrench(Settings settings) {
@@ -46,22 +43,9 @@ public class Wrench extends Item {
 			world.setBlockState(pos, state.cycle(ExtendableBlock.PLACE).with(ExtendableBlock.FORCE_STATE, true), 3);
 			return ActionResult.SUCCESS;
 		}
-		
-		if (world.isClient()) return ActionResult.CONSUME;
-		
-		
-		if (Multiblocks.get(world).tryAssemble(pos).isPresent())
+
+		if (Multiblocks.tryAssemble(world, pos, context.getSide(), player))
 			return ActionResult.SUCCESS;
-		
-		Optional<? extends Multiblock> potentialMultiblock = Multiblocks.get(world).getMultiblock(pos);
-		if (potentialMultiblock.isPresent()) {
-			
-			if (potentialMultiblock.get() instanceof SCP096Cage multiblock) {
-				if (multiblock.repair(player)) return ActionResult.SUCCESS;
-			}
-			
-		}
-		
 		return ActionResult.CONSUME;
 	}
 	

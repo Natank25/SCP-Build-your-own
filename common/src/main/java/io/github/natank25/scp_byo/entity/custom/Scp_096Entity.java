@@ -8,9 +8,6 @@ import io.github.natank25.scp_byo.entity.goals.scp_096.SCP096BlockBreakingGoal;
 import io.github.natank25.scp_byo.entity.goals.scp_096.SCP096MoveToTargetGoal;
 import io.github.natank25.scp_byo.entity.goals.scp_096.SCP096StayLockedGoal;
 import io.github.natank25.scp_byo.persistent_data.DoesSCP096Exist;
-import io.github.natank25.scp_byo.persistent_data.multiblock.multiblocks.SCP096Cage;
-import io.github.natank25.scp_byo.persistent_data.multiblock.Multiblock;
-import io.github.natank25.scp_byo.persistent_data.multiblock.Multiblocks;
 import io.github.natank25.scp_byo.sounds.ModSounds;
 import io.github.natank25.scp_byo.utils.Utils;
 import net.minecraft.block.BlockState;
@@ -53,14 +50,16 @@ import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.GeoAnimatable;
+import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animatable.instance.SingletonAnimatableInstanceCache;
 import software.bernie.geckolib.animatable.manager.AnimatableManager;
 import software.bernie.geckolib.animatable.processing.AnimationController;
 import software.bernie.geckolib.animatable.processing.AnimationTest;
-import software.bernie.geckolib.animation.*;
+import software.bernie.geckolib.animation.Animation;
+import software.bernie.geckolib.animation.PlayState;
+import software.bernie.geckolib.animation.RawAnimation;
 
 import java.util.*;
 import java.util.function.IntFunction;
@@ -375,14 +374,8 @@ public class Scp_096Entity extends ScpEntity implements GeoEntity {
 
 
     private boolean isTrulyInCage(ServerWorld world) {
-        Optional<? extends Multiblock> optional = Multiblocks.get(world).getMultiblock(this.getBlockPos());
-        if (optional.isEmpty()) return false;
-
-        if (!(optional.get() instanceof SCP096Cage cage)) return false;
-
-        Optional<Scp_096Entity> scp = cage.getScp();
-        return scp.isPresent() && scp.get().equals(this);
-
+        //TODO
+        return false;
     }
 
     private boolean isWalking() {

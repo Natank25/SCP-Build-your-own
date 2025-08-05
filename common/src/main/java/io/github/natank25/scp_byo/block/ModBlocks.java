@@ -77,7 +77,7 @@ public enum ModBlocks {
 		return ModItems.registerItem(name, settings -> new BlockItem(block.get(), settings), ModItems.defaultSettings());
 	}
 	
-	private static RegistrySupplier<Block> registerBlockWithoutItem(String name, Function<AbstractBlock.Settings, Block> blockFactory, AbstractBlock.Settings settings) {
+	public static RegistrySupplier<Block> registerBlockWithoutItem(String name, Function<AbstractBlock.Settings, Block> blockFactory, AbstractBlock.Settings settings) {
 		RegistryKey<Block> blockKey = keyOfBlock(name);
 
 		return BLOCKS.register(Utils.newIdentifier(name), () -> blockFactory.apply(settings.registryKey(blockKey)));

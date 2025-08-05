@@ -45,9 +45,9 @@ public class ModItems {
 	}
 	//endregion
 
-	public static RegistrySupplier<Item> registerItem(String name, Function<Item.Settings, Item> blockFactory, Item.Settings settings) {
+	public static RegistrySupplier<Item> registerItem(String name, Function<Item.Settings, Item> itemFactory, Item.Settings settings) {
 		RegistryKey<Item> itemKey = keyOfItem(name);
-		return ITEMS.register(Utils.newIdentifier(name), () -> blockFactory.apply(settings.registryKey(itemKey)));
+		return ITEMS.register(Utils.newIdentifier(name), () -> itemFactory.apply(settings.registryKey(itemKey)));
 	}
 
 	public static void registerItems() {
